@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ta styles moy gia login-->
+    <link rel="stylesheet" href="login_styles.css">
+
+    <!-- to leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""/>
+    <!-- gia leaflet -->
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  </head>
+
+  <body>
+
+    <!-- map id -->
+    <div class="container-fluid">
+      <div class="row justify-content-center align-items-center">
+        <div class="container-fluid" id = "map" style="height:800px;width:75%;"></div>
+        <!-- map script -->
+        <script>
+          //vriskw topo8esia
+          function getLocation() {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(retPos,showError);
+            }
+          }
+          //epistrefw 8esh
+          function retPos(pos) {
+            var map = L.map('map').setView([pos.coords.latitude,pos.coords.longitude], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
+            .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            .openPopup();
+          }
+          //an yparksei error
+          function showError(error) {
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                alert("User denied the request for Geolocation.");
+                break;
+              case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+              case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+              case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+              }
+            }
+            //epestrepse mou ton xarth
+            getLocation();
+        </script>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
