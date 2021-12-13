@@ -35,7 +35,7 @@ function validatePassword() {
 function loginOnClick() {
     if (validatePassword()) {
       //ayto prepei na phgainei eite se admin eite se user
-        document.location.href = "userpage.html";
+        document.location.href = "adminpage.html";
     }
 }
 
