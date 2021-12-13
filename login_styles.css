@@ -1,10 +1,21 @@
-
-.mbutton{
-  width:25%;
-  size:25px;
-  margin-top:20px;
+.btn-color {
+    background-color: #0e1c36;
+    color: rgb(41, 11, 11);
 }
 
-.mspacing{
-  margin-bottom:15px;
+
+/*login page*/
+
+#error_msg {
+    color: red;
+}
+
+a,
+a:hover {
+    color: #333
+}
+
+form i {
+    margin-left: -30px;
+    cursor: pointer;
 }

@@ -1,12 +1,17 @@
+
+f = document.getElementById('upfile');
+var fr=new FileReader();
+fr.readAsText(f.files[0]);
+//fr.onload=function(){alert(fr.result);}
+
 // Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:8080');
 
-// Connection opened
-socket.addEventListener('open', function (event) {
-    socket.send('Hello Server!');
-});
+const express = require('express');
+const app = express();
 
-// Listen for messages
-socket.addEventListener('message', function (event) {
-    console.log('Message from server ', event.data);
-});
+var computerSciencePortal = "GeeksforGeeks";
+
+app.get('/' , (req,res)=>{
+   // Server will send GeeksforGeeks as response
+   res.send(computerSciencePortal);
+})

@@ -14,7 +14,7 @@ function to_upload(){
   var myform = document.getElementById("fileform");
   var formData = new FormData(myform);
   $.ajax({
-    url : 'file_read.js',
+    url : 'client_side.js',
     type : 'GET',
     data : formData,
     processData: false,  // tell jQuery not to process the data

@@ -1,73 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- ta styles moy gia login-->
-    <link rel="stylesheet" href="login_styles.css">
+<head>
+  <title>LOGIN</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <link rel="stylesheet" href="login_styles.css">
+  <link href="login.css" rel="stylesheet">
 
-  </head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/fontawesome.min.css" integrity="sha384-jLKHWM3JRmfMU0A5x5AkjWkw/EYfGUAGagvnfryNV3F9VqM98XiIH7VBGVoxVSc7" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 
-  <body>
-    <h1 class="text-center">Ergasia Web</h1>
 
-    <div class="container-fluid">
+<body>
 
-      <div class="mspacing row justify-content-center align-items-center">
+  <div class="container"
+  style="width: 400px; margin-top: 150px; background-color: rgb(255, 255, 245); border-radius: 20px; border:solid 2px rgb(228, 228, 228);">
+  <h2 style="text-align: center;">Login form</h2>
 
-        <form class="text-center col-md-4">
+  <div name="myForm" display="inline">
 
-          <div class="mspacing form-group row">
-            <label for="inputUsername" class="col-sm-2 col-form-label"><strong>Username</strong></label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="inputUsername">
-            </div>
-          </div>
+    <div class="row mb-2">
+      <div class="col">
+        <label for="usernameInput" class="form-label"><b>Username:</b></label>
+        <input type="text" class="form-control" id="usernameInput" name="username" required>
+      </div>
+    </div>
 
-          <div class="mspacing form-group row ">
+    <div class="row mb-2">
+      <div class="col">
+        <label for="passwordInput"><b>Password:</b></label>
+        <input type="password" class="form-control pwd" id="passwordInput" name="password" autocomplete="current-password" pattern="(?=.*\d)(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}" required >
+        <!-- An element to toggle between password visibility -->
+        <input type="checkbox" onclick="myFunction()">Show Password
+      </div>
+    </div>
 
-            <label for="Email" class="col-sm-2 col-form-label" ><strong>Email</strong></label>
-            <div class="col-sm-10">
-              <input type="email" class="form-control" id="Email">
-            </div>
 
-          </div>
+    <div class="row mb-2">
+      <div class="col">
+        <label for="email"><b>Email:</b></label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+    </div>
 
-          <div class="mspacing form-group row">
-            <label for="inputPassword" class="col-sm-2 col-form-label"><strong>Password</strong></label>
+    <div class="row justify-content-center">
+      <div class="col-auto">
 
-            <div class="col-sm-10">
-              <input type="password" class="form-control" id="inputPassword">
-            </div>
-
-          </div>
-        </form>
-
-        <div class="row justify-content-center align-items-center">
-          <button type="button" class="mbutton btn btn-md btn-primary col-sm-2" style="margin-right:5px;">
-            Log In
-          </button>
-          <a href="adminpage.html" type="button" class="mbutton btn btn-secondary btn-md col-sm-2" style="margin-left:5px;" >Register</a>
-        </div>
-
+        <button type="submit" class="btn btn-primary mb-2" id="logButton" onclick= "loginOnClick()" >Login</button>
       </div>
 
     </div>
 
+    <div class="row justify-content-center">
+        <div class="col-auto" id="error_msg_cont">
+          <span id="error_msg"></span>
+        </div>
+    </div>
 
-    <!-- Optional JavaScript; choose one of the two! -->
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <script src="restrictions.js"></script>
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
-  </body>
+
+  </div>
+</div>
+
+</body>
 </html>
