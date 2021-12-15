@@ -11,18 +11,18 @@ function enable_files(){
 
 function to_upload(){
   console.log("ne");
-  var myform = document.getElementById("fileform");
-  var formData = new FormData(myform);
+  var myform = document.getElementById("upfile");
+  //var formData = new FormData(myform);
   $.ajax({
     url : 'client_side.js',
     type : 'GET',
-    data : formData,
+    data : myform.files[0],
     processData: false,  // tell jQuery not to process the data
     contentType: false,  // tell jQuery not to set contentType
     success : function(data) {
       alert("sunevh");
-      console.log(data);
-      alert(data);
+    //  console.log(data);
+    //  alert(data);
     }
   });
 }
