@@ -16,7 +16,8 @@ http.createServer(function (req, res) {
         data += chunk;
       });
       req.on('end', () => {
-        console.log(JSON.parse(data)); // 'Buy the milk'
+        var mdata = JSON.parse(data); // get json data,then bulk
+        console.log(mdata[0]);
         res.end();
       });
     }

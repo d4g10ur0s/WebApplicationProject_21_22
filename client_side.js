@@ -18,7 +18,9 @@ if (mfile) {
     reader.readAsText(mfile, "UTF-8");
     reader.onload = function (evt) {
         var a = evt.target.result;
-        console.log(a);
+        console.log(typeof(a));
+        a = JSON.parse(a);
+        console.log(typeof(a));
         $.ajax({
           url: 'http://localhost:8080',
           data: JSON.stringify(a),
