@@ -1,9 +1,34 @@
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var bodyParser = require('body-parser');
+var cors = require('cors')
+
 var http = require('http');
 var util = require('util');
 var mysql = require('mysql');
+const url = require('url');
 var formidable = require('formidable');
 
-http.createServer(function (req, res) {
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, '/'));
+app.set('view engine', 'ejs');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+extended: true
+}));
+
+app.use(cors({
+    credentials: true,
+    preflightContinue: true,
+    methods: "GET, POST, PUT, PATCH , DELETE, OPTIONS",
+    origin: true
+}));
+
+
+app.get('/adminload',function (req, res) {
   console.log('Request received: ');
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
@@ -17,6 +42,7 @@ http.createServer(function (req, res) {
         data += chunk;
       });
       req.on('end', () => {
+        //console.log(req);
         var mdata = JSON.parse(data); // get json data,then bulk
         var con = mysql.createConnection({
           host: "localhost",
@@ -116,5 +142,29 @@ http.createServer(function (req, res) {
 
     res.end('callback(\'{\"msg\": \"OK\"}\')');
 
-}).listen(8080);
-console.log('Server running on port 8080');
+});
+
+app.all('/kati',function (req, res) {
+  console.log(req.url);
+  console.log(req.body);
+  for (r in req.body){
+    console.log(r);
+  }
+
+  // BEGINNING OF NEW STUFF
+  //
+  res.writeHead(200, {
+  'Content-Type': 'text/plain',
+  'Access-Control-Allow-Origin' : '*',
+  'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+  });
+  res.on('error', (err) => {
+    console.error(err);
+  });
+  res.end();
+});
+
+app.listen(8080, function() {
+console.log('Node app is running on port 8080');
+});
+module.exports = app;
