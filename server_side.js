@@ -144,24 +144,46 @@ app.get('/adminload',function (req, res) {
 
 });
 
-app.all('/kati',function (req, res) {
+app.post('/kati',function (req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+    'Access-Control-Allow-Origin' : '*',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+  });
+
   console.log(req.url);
-  console.log(req.body);
+  var myArr = [];
+  var info = "";
+  //lets query db
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "Den8aKsexasw",
+    database: "projectweb",
+    multipleStatements: true
+  });
   for (r in req.body){
-    console.log(r);
+      info = JSON.parse(r);
+      info = info.split(' ');
   }
 
-  // BEGINNING OF NEW STUFF
-  //
-  res.writeHead(200, {
-  'Content-Type': 'text/plain',
-  'Access-Control-Allow-Origin' : '*',
-  'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
-  });
+  if(!(info=="")){
+    con.connect(function(err) {
+      console.log("Connected");
+      var mquery = "select * from point_of_interest inner join "+ info[0] +" on point_of_interest.id="+ info[0] +".pointid;";
+      con.query(mquery, function (err, result, fields) {
+        if (err){
+          throw err;
+        }
+        res.write(JSON.stringify(result));
+        res.end();
+      });//telos query gia info
+    });//telos connect
+  }//an to info einai tpt mhn kanei tpt
+
   res.on('error', (err) => {
     console.error(err);
   });
-  res.end();
 });
 
 app.listen(8080, function() {
