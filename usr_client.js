@@ -1,4 +1,5 @@
 var map = "";
+var pos_center = "";
 
 $('#sform').submit(function (e) {
      var dtransfered = "";
@@ -9,7 +10,7 @@ $('#sform').submit(function (e) {
        var mmsg = {message : val};
        console.log(mmsg.message);
      $.ajax({
-       url: 'http://localhost:8080/kati',
+       url: 'http://localhost:8080/usrpointers',
        data: JSON.stringify(mmsg.message),
        type: 'POST',
        processData: false,
@@ -27,10 +28,23 @@ $('#sform').submit(function (e) {
        }
      });//prwto ajax
      $(document).ajaxComplete(function () {
+       var inRange = [], latlng_a = new L.LatLng(pos_center[0],pos_center[1]), latlng_b;
        for(d in dtransfered){
-         var marker = L.marker([dtransfered[d].lat,dtransfered[d].lon]).addTo(map);
+         latlng_b = new L.LatLng(dtransfered[d].lat ,dtransfered[d].lon);
+         if ( (latlng_a.distanceTo(latlng_b)/1000).toFixed(0) < 5000) {
+           inRange.push(dtransfered[d]);
+         }
+       }
+       dtransfered = inRange;
+       console.log("egine");
+       for(d in dtransfered){
+         console.log("egine");
+         var marker = L.marker([dtransfered[d].lat,dtransfered[d].lon]).addTo(map)
+         .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address)
+         .openPopup();
        }
      });
+
      $.ajax({
        async: false,
        url: this.href,
@@ -57,7 +71,7 @@ $('#sform').submit(function (e) {
    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
    }).addTo(map);
-   var pos_center = [pos.coords.latitude, pos.coords.longitude];
+   pos_center = [pos.coords.latitude, pos.coords.longitude];
    //var points = [
    //  [pos_center[0]+(0.00461 * 5), pos_center[1]] ,[pos_center[0],pos_center[1]+(0.00981*5)] ,
    //  [pos_center[0]-(0.00461 * 5), pos_center[1]] ,[pos_center[0],pos_center[1]-(0.00981*5)]
@@ -69,7 +83,7 @@ $('#sform').submit(function (e) {
    //38.25886, 21.74725
    // apokliseis pos.coords.latitude - 0.00103, pos.coords.longitude - 0.00721
    L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
-   .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+   .bindPopup('You Are Here !')
    .openPopup();
  }
  //an yparksei error
