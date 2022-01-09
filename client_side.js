@@ -18,13 +18,14 @@ if (mfile) {
     reader.readAsText(mfile, "UTF-8");
     reader.onload = function (evt) {
         var a = evt.target.result;
-        console.log(a);
         a = JSON.parse(a);
-        console.log(a);
+        console.log(JSON.stringify(a));
         //ola einai se array gia auto den ginontai swsta extract oute stelnontai swsta
         $.ajax({
           url: 'http://localhost:8080/adminload',
-          data: a,
+          dataType: 'json',
+          //contentType: 'application/json',
+          data: JSON.stringify(a),
           type: 'POST',
           processData: false,
           success: function (data) {

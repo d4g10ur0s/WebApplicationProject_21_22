@@ -11,7 +11,7 @@ $('#sform').submit(function (e) {
        console.log(mmsg.message);
      $.ajax({
        url: 'http://localhost:8080/usrpointers',
-       data: JSON.stringify(mmsg.message),
+       data: JSON.stringify(mmsg),
        type: 'POST',
        processData: false,
        headers: {
@@ -31,9 +31,9 @@ $('#sform').submit(function (e) {
        var inRange = [], latlng_a = new L.LatLng(pos_center[0],pos_center[1]), latlng_b;
        for(d in dtransfered){
          latlng_b = new L.LatLng(dtransfered[d].lat ,dtransfered[d].lon);
-         if ( (latlng_a.distanceTo(latlng_b)/1000).toFixed(0) < 5000) {
+        // if ( (latlng_a.distanceTo(latlng_b)/1000).toFixed(0) < 5000) {
            inRange.push(dtransfered[d]);
-         }
+        // }
        }
        dtransfered = inRange;
        console.log("egine");
