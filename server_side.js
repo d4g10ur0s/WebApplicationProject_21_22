@@ -176,8 +176,9 @@ app.post('/usrpointers',function (req, res) {
     console.log(req.url);
     var info = Buffer.concat(body).toString();
     info = JSON.parse(info);//parsing json
+    info = info.message;
     info = info.split(' ');
-    console.log(info[0]);
+    console.log(info.message);
     //lets query db
     var con = mysql.createConnection({
       host: "localhost",

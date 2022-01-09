@@ -1,5 +1,55 @@
+const wres_meras = [
+"I",
+"II",
+"III",
+"IV",
+"V",
+"VI",
+"VII",
+"VIII",
+"IX",
+"X",
+"XI",
+"XII",
+"XIII",
+"XIV",
+"XV",
+"XVI",
+"XVII",
+"XVIII",
+"XIX",
+"XX",
+"XXI",
+"XXII",
+"XXIII",
+"XXIV"
+];
 var map = "";
 var pos_center = "";
+var greenIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+var redIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+var orangeIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
 $('#sform').submit(function (e) {
      var dtransfered = "";
@@ -38,10 +88,38 @@ $('#sform').submit(function (e) {
        dtransfered = inRange;
        console.log("egine");
        for(d in dtransfered){
-         console.log("egine");
-         var marker = L.marker([dtransfered[d].lat,dtransfered[d].lon]).addTo(map)
-         .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address)
-         .openPopup();
+         console.log(dtransfered[d].i);
+         var b = [dtransfered[d].i,dtransfered[d].ii,dtransfered[d].iii
+         ,dtransfered[d].iv,dtransfered[d].v,dtransfered[d].vi,
+         dtransfered[d].vii,dtransfered[d].viii,dtransfered[d].ix,
+         dtransfered[d].x,dtransfered[d].xi,
+         dtransfered[d].xii,dtransfered[d].xiii,dtransfered[d].xiv,
+         dtransfered[d].xv,dtransfered[d].xvi,dtransfered[d].xvii,
+         dtransfered[d].xviii,dtransfered[d].xix,dtransfered[d].xx,
+         dtransfered[d].xxi,dtransfered[d].xxii,dtransfered[d].xxiii,dtransfered[d].xxiv];
+         //pairnw sum
+         var sum = 0;
+         for(i in b){
+           sum+=parseInt(i);
+         }
+         console.log(sum);
+         sum =( parseInt(b[hour-1])/sum )*100;
+         var hour = new Date().getHours();
+         console.log(sum);
+         var marker;
+         if(sum > 66){
+           marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: redIcon}).addTo(map)
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .openPopup();
+         }else if (sum > 65) {
+           marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: orangeIcon}).addTo(map)
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .openPopup();
+         }else {
+           marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: greenIcon}).addTo(map)
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .openPopup();
+         }
        }
      });
 
