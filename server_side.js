@@ -12,6 +12,8 @@ var formidable = require('formidable');
 
 var app = express();
 
+var haversine = require("haversine-distance");
+
 //Gia na pairnw ti mera einai
 function td(){
   switch (new Date().getDay()) {
@@ -211,6 +213,177 @@ app.post('/usrpointers',function (req, res) {
 
   });
 
+  //gia na vazei o user location
+  app.all('/userloc',function (req, res) {
+    console.log('Request received: ');
+    util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+    util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+    if(req.method==='OPTIONS'){
+            res.writeHead(200);
+            res.end();
+      }else if(req.method==='POST'){
+        var body = [];
+        //h katallhlh kefalida
+        res.writeHead(200, {
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin' : '*',
+          'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+        });
+        //diavase data
+        req.on("data", (chunk) => {
+          console.log(chunk);
+          body.push(chunk);
+        });
+        //otan exeis diavasei olo to data
+        req.on("end", () => {
+          var mdata = Buffer.concat(body).toString();
+          mdata = JSON.parse(mdata);//parsing json
+          mdata = mdata.mssg;
+          console.log(mdata);
+          //dhmiourgia connection me vash
+          var con = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "Den8aKsexasw",
+            database: "projectweb",
+            multipleStatements: true
+          });
+          //shndesh me vash
+          con.connect(function(err) {
+            console.log("Connected");
+            //vazw se poio shmeio eimai lon ke lat
+            var mquery = "UPDATE user SET lat="+mdata[1]+",lon="+mdata[2]+" WHERE username like \'%"+mdata[0]+"%\'";
+            con.query(mquery, function (err, result, fields) {
+              if (err){
+                throw err;
+              }
+            });//telos query gia lon ke lat
+            //eimai se shmeia endiaferontos?
+            mquery = "SELECT name,lat,lon FROM point_of_interest ;";
+            con.query(mquery, function (err, result, fields) {
+              if (err){
+                throw err;
+              }
+              var to_ret = [];
+              var point1 = {lat : 38.2496651 ,lng : 21.7390541};
+              for(i in result){
+                var point2 = {lat : result[i].lat , lng : result[i].lon};//pairnw to 2o point
+                var haversine_m = haversine(point1, point2); //metraw apostash
+                //var haversine_km = haversine_m /1000; //Results in kilometers
+                if(haversine_m < 20){
+                  console.log("sunevh");
+                  to_ret.push(result[i]);
+                }
+              }
+              to_ret = {tret : to_ret};
+              res.write(JSON.stringify(to_ret));//grafw result sto telos
+              res.end();//end of response
+            });//telos query gia lon ke lat
+          });//telos connect
+        });//req on end
+      }//end if
+    });//gia na vazei o user location
+
+    //gia na vazei o user krousma
+    app.all('/userkrousma',function (req, res) {
+      console.log('Request received: ');
+      util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+      util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+      if(req.method==='OPTIONS'){
+              res.writeHead(200);
+              res.end();
+        }else if(req.method==='POST'){
+          var body = [];
+          //h katallhlh kefalida
+          res.writeHead(200, {
+            'Content-Type': 'text/plain',
+            'Access-Control-Allow-Origin' : '*',
+            'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+          });
+          //diavase data
+          req.on("data", (chunk) => {
+            console.log(chunk);
+            body.push(chunk);
+          });
+          //otan exeis diavasei olo to data
+          req.on("end", () => {
+            var mdata = Buffer.concat(body).toString();
+            mdata = JSON.parse(mdata);//parsing json
+            mdata = mdata.mssg;
+            console.log(mdata);
+            //dhmiourgia connection me vash
+            var con = mysql.createConnection({
+              host: "localhost",
+              user: "root",
+              password: "Den8aKsexasw",
+              database: "projectweb",
+              multipleStatements: true
+            });
+            //shndesh me vash
+            con.connect(function(err) {
+              console.log("Connected");
+              //mdata[...]...
+              var mquery = "UPDATE user SET krousma="+mdata[1]+",pote_ko=\'"+mdata[2]+"\' WHERE username like \'%"+mdata[0]+"%\'";
+              con.query(mquery, function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+              });//telos query gia info
+            });
+            res.end();//end of response
+          });//req on end
+        }//end if
+      });
+      //vazw pou eimai
+      app.all('/usermeros',function (req, res) {
+        console.log('Request received: ');
+        util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+        util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+        if(req.method==='OPTIONS'){
+                res.writeHead(200);
+                res.end();
+          }else if(req.method==='POST'){
+            var body = [];
+            //h katallhlh kefalida
+            res.writeHead(200, {
+              'Content-Type': 'text/plain',
+              'Access-Control-Allow-Origin' : '*',
+              'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+            });
+            //diavase data
+            req.on("data", (chunk) => {
+              console.log(chunk);
+              body.push(chunk);
+            });
+            //otan exeis diavasei olo to data
+            req.on("end", () => {
+              var mdata = Buffer.concat(body).toString();
+              mdata = JSON.parse(mdata);//parsing json
+              mdata = mdata.msg;
+              console.log(mdata);
+              //dhmiourgia connection me vash
+              var con = mysql.createConnection({
+                host: "localhost",
+                user: "root",
+                password: "Den8aKsexasw",
+                database: "projectweb",
+                multipleStatements: true
+              });
+              //shndesh me vash
+              con.connect(function(err) {
+                console.log("Connected");
+                //mdata[...]...
+                var mquery = "INSERT INTO visit(username,pname) VALUES (\'"+mdata[0]+"\', \'"+ mdata[1]+"\');";
+                con.query(mquery, function (err, result, fields) {
+                  if (err){
+                    throw err;
+                  }
+                });//telos query gia info
+              });
+              res.end();//end of response
+            });//req on end
+          }//end if
+        });
 
 app.listen(8080, function() {
 console.log('Node app is running on port 8080');

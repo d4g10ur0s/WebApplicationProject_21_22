@@ -3,6 +3,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "formidable": "^2.0.1",
+    "haversine-distance": "^1.2.1",
     "http": "^0.0.1-security",
     "http-errors": "^2.0.0",
     "mysql": "^2.18.1",

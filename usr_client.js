@@ -145,6 +145,38 @@ $('#sform').submit(function (e) {
  }
  //epistrefw 8esh
  function retPos(pos) {
+   var mmsg = {mssg : ['zirdas', pos.coords.latitude, pos.coords.longitude]};
+   //var mmsg = "";
+   $.ajax({
+     url: 'http://localhost:8080/userloc',
+     data: JSON.stringify(mmsg),
+     type: 'POST',
+     processData: false,
+     headers: {
+        "Access-Control-Allow-Origin" : "*"
+    },
+     success: function (data, stat,xhr) {
+       console.log('Success: ' + data);
+       dtransfered = JSON.parse(data);//pairnw data se morfh json
+       console.log(dtransfered);
+       for(i in dtransfered.tret){
+         const episkepseis = document.getElementById('episkepseis');
+         // creating the span element, then add a class attribute
+         var kappa = dtransfered.tret[i].name.split(' ');//to prwto akronhmio einai to id
+         const btt = document.createElement(kappa[0]);
+         btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
+         btt.innerHTML = dtransfered.tret[i].name; // some text to improve visualization
+         btt.addEventListener('click', clickPoint, true);
+         btt.myParam = dtransfered.tret[i].name;
+         episkepseis.appendChild(btt);
+       }//vazw koumbia
+       alert("Βρίσκεστε σε κάποιο σημείο ;");
+     },
+     error: function (xhr, status, error) {
+       console.log('Error: ' + error.message);
+       $('#lblResponse').html('Error connecting to the server.');
+     }
+   });//ajax gia na vazw lat lon
    map = L.map('map',{minZoom:13.25}).setView([pos.coords.latitude,pos.coords.longitude], 18);
    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -181,5 +213,65 @@ $('#sform').submit(function (e) {
        break;
      }
    }
+
+   $('#krousmaform').submit(function (e) {
+        var dtransfered = "";
+        e.preventDefault();
+        var datval = document.getElementById("krousmadate").value;
+        var timval = document.getElementById("krousmatime").value;
+        if( timval == "" && datval == ""){
+          alert("Δεν έχετε βάλει ώρα ή ημέρα.")
+        }else{
+          //epikoinwnia me webserver
+          console.log(datval + " " + timval);
+          var mmsg = {mssg : ['zirdas', 1, datval + " " + timval]};
+          //var mmsg = "";
+          $.ajax({
+            url: 'http://localhost:8080/userkrousma',
+            data: JSON.stringify(mmsg),
+            type: 'POST',
+            processData: false,
+            headers: {
+               "Access-Control-Allow-Origin" : "*"
+           },
+            success: function (data, stat,xhr) {
+              console.log('Success: ' + data);
+              dtransfered = JSON.parse(data);//pairnw data se morfh json
+              console.log(dtransfered);
+            },
+            error: function (xhr, status, error) {
+              console.log('Error: ' + error.message);
+              $('#lblResponse').html('Error connecting to the server.');
+            }
+          });//ajax gia na vazw timestamp gia krousma
+        }
+      });
+    //se poio point eimai
+    function clickPoint(ev){
+      console.log(ev.currentTarget.myParam);
+      var mmsg = {msg : ['zirdas', ev.currentTarget.myParam]};
+      $.ajax({
+        url: 'http://localhost:8080/usermeros',
+        data: JSON.stringify(mmsg),
+        type: 'POST',
+        processData: false,
+        headers: {
+           "Access-Control-Allow-Origin" : "*"
+       },
+        success: function (data, stat,xhr) {
+          console.log('Success: ' + data);
+          dtransfered = JSON.parse(data);//pairnw data se morfh json
+          console.log(dtransfered);
+        },
+        error: function (xhr, status, error) {
+          console.log('Error: ' + error.message);
+          $('#lblResponse').html('Error connecting to the server.');
+        }
+      });//ajax gia na vazw pou eimai
+      const myNode = document.getElementById("episkepseis");
+      while (myNode.firstChild) {
+        myNode.removeChild(myNode.lastChild);
+      }//vgazw ola ta merh pou mporei na eimai
+    }//se poio point eimai
    //epestrepse mou ton xarth
    getLocation();
