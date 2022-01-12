@@ -165,6 +165,8 @@ $('#sform').submit(function (e) {
          var kappa = dtransfered.tret[i].name.split(' ');//to prwto akronhmio einai to id
          const btt = document.createElement(kappa[0]);
          btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
+         btt.style.marginRight="5px";
+         btt.style.width= "25%";
          btt.innerHTML = dtransfered.tret[i].name; // some text to improve visualization
          btt.addEventListener('click', clickPoint, true);
          btt.myParam = dtransfered.tret[i].name;
@@ -272,6 +274,21 @@ $('#sform').submit(function (e) {
       while (myNode.firstChild) {
         myNode.removeChild(myNode.lastChild);
       }//vgazw ola ta merh pou mporei na eimai
+      // koumpi gia ektimhsh
+      const btt = document.createElement("ektimish");
+      btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
+      btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
+      btt.style.marginRight="5px";
+      //btt.addEventListener('click', clickPoint, true);
+      //input ektimhshs
+      const inp = document.createElement("input");
+      inp.setAttribute('type',"text");//gia input
+      inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
+      inp.style.width = '50px';
+      inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
+      //ta vazw
+      myNode.appendChild(btt);
+      myNode.appendChild(inp);
     }//se poio point eimai
    //epestrepse mou ton xarth
    getLocation();
