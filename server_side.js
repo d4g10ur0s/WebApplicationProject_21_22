@@ -55,6 +55,7 @@ app.all('/adminload',function (req, res) {
           res.writeHead(200);
           res.end();
     }else if(req.method==='POST'){
+      var mmsg = {msg : "Έγινε."};
       //h katallhlh kefalida
       res.writeHead(200, {
         'Content-Type': 'text/plain',
@@ -80,6 +81,7 @@ app.all('/adminload',function (req, res) {
           multipleStatements: true
         });
         //shndesh me vash
+        try{
         con.connect(function(err) {
           console.log("Connected");
           var busert = [];         //vazw ta panta mesa se lista
@@ -113,48 +115,59 @@ app.all('/adminload',function (req, res) {
                 mtypes[mdata[k].types[type]].push([mdata[k].id]);
               }
             }
-            console.log(mdata[k].name);
             busert.push([mdata[k].id,mdata[k].name,mdata[k].address,mdata[k].coordinates.lat,mdata[k].coordinates.lng,mdata[k].rating,mdata[k].rating_n]);
           }//end for proetoimasias
-          console.log(mdayz["Monday"]);
 
           //vazw point of interest info (id name address lat lon rating rating_n)
           //mdata[...]...
+          const query = util.promisify(con.query).bind(con);
+          (async () => {
+          var sunexeia = true;
           var mquery = "INSERT INTO point_of_interest(id,name,address,lat,lon,rating,rating_n) VALUES ?";
-          con.query(mquery,[busert], function (err, result, fields) {
+          try{
+          await query(mquery,[busert], function (err, result, fields) {
             if (err){
+              mmsg = {msg : "Υπάρχει ήδη.\nΠήγαινε Ενημέρωση"};
+              sunexeia = false;
               throw err;
             }
           });//telos query gia info
-          //vazw ka8e eidos
-          for(tp in mtypes){
-            con.query("create table if not exists "+tp+"(pointid varchar(30));", function (err, result, fields) {
-              if (err){
-                throw err;
-              }
-            });//telos query_1
-            //vazw to sxetiko id
-            var tload = mtypes[tp];
-            var mquery = "INSERT INTO "+tp+"(pointid) VALUES ?";
-            con.query(mquery,[tload] ,function (err, result, fields) {
-              if (err){
-                throw err;
-              }
-            });//telos query_2
-          }//endfor
-          // vazw ka8e eidos
-          //vazw se hmeres
-          for(d in mdayz){
-            console.log(d);
-            var mquery = "INSERT INTO "+d+"(id,i,ii,iii,iv,v,vi,vii,viii,ix,x,xi,xii,xiii,xiv,xv,xvi,xvii,xviii,xix,xx,xxi,xxii,xxiii,xxiv) VALUES ?";
-            con.query(mquery,[mdayz[d]], function (err, result, fields) {
-              if (err){
-                throw err;
-              }
-            });//telos query gia mia hmera
-          }//vazw hmeres
-        });//telos connect
+        }catch (error){throw error;}
+          if(sunexeia){
+            console.log(sunexeia);
+            //vazw ka8e eidos
+            for(tp in mtypes){
+              con.query("create table if not exists "+tp+"(pointid varchar(30));", function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+              });//telos query_1
+              //vazw to sxetiko id
+              var tload = mtypes[tp];
+              var mquery = "INSERT INTO "+tp+"(pointid) VALUES ?";
+              con.query(mquery,[tload] ,function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+              });//telos query_2
+            }//endfor
+            // vazw ka8e eidos
+            //vazw se hmeres
+            for(d in mdayz){
+              console.log(d);
+              var mquery = "INSERT INTO "+d+"(id,i,ii,iii,iv,v,vi,vii,viii,ix,x,xi,xii,xiii,xiv,xv,xvi,xvii,xviii,xix,xx,xxi,xxii,xxiii,xxiv) VALUES ?";
+              con.query(mquery,[mdayz[d]], function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+              });//telos query gia mia hmera
+            }//vazw hmeres
+          }//endifsunexeia
+        })()//end async
+        res.write(JSON.stringify(mmsg));
         res.end();//telos sundeshs
+        });//telos connect
+      }catch (error){console.log("geia");}
       });
     }
 });
@@ -294,6 +307,7 @@ app.post('/usrpointers',function (req, res) {
               res.end();
         }else if(req.method==='POST'){
           var body = [];
+          var mmsg = {};
           //h katallhlh kefalida
           res.writeHead(200, {
             'Content-Type': 'text/plain',
@@ -321,16 +335,41 @@ app.post('/usrpointers',function (req, res) {
             });
             //shndesh me vash
             con.connect(function(err) {
+              var k = false;
+
               console.log("Connected");
-              //mdata[...]...
-              var mquery = "UPDATE user SET krousma="+mdata[1]+",pote_ko=\'"+mdata[2]+"\' WHERE username like \'%"+mdata[0]+"%\'";
+              var mquery = "SELECT pote_ko FROM user WHERE username like \'%"+mdata[0]+"%\'";
               con.query(mquery, function (err, result, fields) {
                 if (err){
                   throw err;
                 }
-              });//telos query gia info
+                var d1 = mdata[2];
+                d1 = new Date(d1);
+                var d2 = String(result[0].pote_ko);
+                d2 = new Date(d2);
+                var Difference_In_Time = d1.getTime() - d2.getTime();
+                // To calculate the no. of days between two dates
+                var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+                if(Difference_In_Days >= 14){
+                  k = true;
+                }
+              });//telos query gia na dw an exei dhlw8ei ws krousma
+              if(k){
+                //mdata[...]...
+                var mquery = "UPDATE user SET krousma="+mdata[1]+",pote_ko=\'"+mdata[2]+"\' WHERE username like \'%"+mdata[0]+"%\'";
+                con.query(mquery, function (err, result, fields) {
+                  if (err){
+                    throw err;
+                  }
+                });//telos query gia info
+                mmsg = {msg : "Έγινε."};
+              }else{
+                console.log("den 8a graftei");
+                mmsg = {msg : "Έχετε ήδη δηλωθεί ως κρούσμα."};
+              }
+              res.write(JSON.stringify(mmsg));
+              res.end();//end of response
             });
-            res.end();//end of response
           });//req on end
         }//end if
       });
@@ -383,7 +422,58 @@ app.post('/usrpointers',function (req, res) {
               res.end();//end of response
             });//req on end
           }//end if
-        });
+        });//vazw pou eimai
+        //vazw ektimhsh
+        app.all('/userektimhsh',function (req, res) {
+          console.log('Request received: ');
+          util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+          util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+          if(req.method==='OPTIONS'){
+                  res.writeHead(200);
+                  res.end();
+            }else if(req.method==='POST'){
+              var body = [];
+              //h katallhlh kefalida
+              res.writeHead(200, {
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin' : '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+              });
+              //diavase data
+              req.on("data", (chunk) => {
+                console.log(chunk);
+                body.push(chunk);
+              });
+              //otan exeis diavasei olo to data
+              req.on("end", () => {
+                var mdata = Buffer.concat(body).toString();
+                mdata = JSON.parse(mdata);//parsing json
+                mdata = mdata.msg;
+                console.log(mdata);
+                //dhmiourgia connection me vash
+                var con = mysql.createConnection({
+                  host: "localhost",
+                  user: "root",
+                  password: "Den8aKsexasw",
+                  database: "projectweb",
+                  multipleStatements: true
+                });
+                //shndesh me vash
+                con.connect(function(err) {
+                  console.log("Connected");
+                  //mdata[...]...
+                  var mquery = "UPDATE visit SET ekt="+1+",num_of_people="+ mdata[1]+" WHERE username like \'%"+mdata[0]+"%\' AND tm like \'%"+mdata[2]+"%\';";
+                  console.log(mquery);
+                  con.query(mquery, function (err, result, fields) {
+                    if (err){
+                      throw err;
+                    }
+                  });//telos query gia info
+                });
+                res.end();//end of response
+              });//req on end
+            }//end if
+          });
 
 app.listen(8080, function() {
 console.log('Node app is running on port 8080');

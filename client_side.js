@@ -23,13 +23,18 @@ if (mfile) {
         //ola einai se array gia auto den ginontai swsta extract oute stelnontai swsta
         $.ajax({
           url: 'http://localhost:8080/adminload',
-          dataType: 'json',
+          timeout:6000 ,//3 second timeout
           //contentType: 'application/json',
           data: JSON.stringify(a),
           type: 'POST',
           processData: false,
           success: function (data) {
             console.log('Success: ');
+          },
+          success: function (data, stat,xhr) {
+            console.log('Success: ' + data);
+            dtransfered = JSON.parse(data);//pairnw data se morfh json
+            alert(dtransfered.msg);
           },
           error: function (xhr, status, error) {
             console.log('Error: ' + error.message);

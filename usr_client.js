@@ -239,7 +239,7 @@ $('#sform').submit(function (e) {
             success: function (data, stat,xhr) {
               console.log('Success: ' + data);
               dtransfered = JSON.parse(data);//pairnw data se morfh json
-              console.log(dtransfered);
+              alert(dtransfered);
             },
             error: function (xhr, status, error) {
               console.log('Error: ' + error.message);
@@ -279,10 +279,17 @@ $('#sform').submit(function (e) {
       btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
       btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
       btt.style.marginRight="5px";
+      var today = new Date();
+      console.log("ginetai");
+      var date = today.getFullYear()+'-'+ConvertNumberToTwoDigitString(today.getMonth()+1)+'-'+ConvertNumberToTwoDigitString(today.getDate());
+      var time = ConvertNumberToTwoDigitString(today.getHours()) + ":" + ConvertNumberToTwoDigitString(today.getMinutes());
+      btt.myParam = date+ ' ' + time;//etsi mporw na anagnwrisw to visit entos ths vashs(username ke timestamp)
+      btt.addEventListener('click', clickEktimish, true);
       //btt.addEventListener('click', clickPoint, true);
       //input ektimhshs
       const inp = document.createElement("input");
       inp.setAttribute('type',"text");//gia input
+      inp.setAttribute('id',"ektimhsh_input");//gia input
       inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
       inp.style.width = '50px';
       inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
@@ -290,5 +297,38 @@ $('#sform').submit(function (e) {
       myNode.appendChild(btt);
       myNode.appendChild(inp);
     }//se poio point eimai
+    function clickEktimish(ev){
+      console.log(ev.currentTarget.myParam);
+      if( isNaN( parseInt(document.getElementById("ektimhsh_input").value) )){//an den einai int mhn synexeis
+        alert("Η Εκτίμηση είναι ακέραιος αριθμός.");
+      }else{
+        var mmsg = {msg : ['zirdas', document.getElementById("ektimhsh_input").value ,ev.currentTarget.myParam]};
+        $.ajax({
+          url: 'http://localhost:8080/userektimhsh',
+          data: JSON.stringify(mmsg),
+          type: 'POST',
+          processData: false,
+          headers: {
+            "Access-Control-Allow-Origin" : "*"
+          },
+          success: function (data, stat,xhr) {
+            console.log('Success: ' + data);
+            dtransfered = JSON.parse(data);//pairnw data se morfh json
+            console.log(dtransfered);
+          },
+          error: function (xhr, status, error) {
+            console.log('Error: ' + error.message);
+            $('#lblResponse').html('Error connecting to the server.');
+          }
+        });//ajax gia na vazw pou eimai
+        const myNode = document.getElementById("episkepseis");
+        while (myNode.firstChild) {
+          myNode.removeChild(myNode.lastChild);
+        }//vgazw ola ta merh pou mporei na eimai
+      }//telos else
+    }//telos ektimhshs
    //epestrepse mou ton xarth
+   function ConvertNumberToTwoDigitString(n) {
+     return n > 9 ? "" + n : "0" + n;
+   }
    getLocation();
