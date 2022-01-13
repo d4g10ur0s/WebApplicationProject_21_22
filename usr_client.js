@@ -331,4 +331,14 @@ $('#sform').submit(function (e) {
    function ConvertNumberToTwoDigitString(n) {
      return n > 9 ? "" + n : "0" + n;
    }
+   $( document).ready(function() {
+     console.log( "ready!" );
+     alert(localStorage.getItem("storageName"));
+     const usinfo = document.getElementById('user_info');
+     // creating the span element, then add a class attribute
+     var kappa = JSON.parse(localStorage.getItem("storageName"));//to prwto akronhmio einai to id
+     const btt = document.createElement("usrinfo");
+     btt.innerHTML =  "Username : "+kappa.username + " E-mail : " + kappa.email ; // some text to improve visualization
+     usinfo.appendChild(btt);
+   });
    getLocation();

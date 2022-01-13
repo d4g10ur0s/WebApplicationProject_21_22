@@ -171,7 +171,7 @@ app.all('/adminload',function (req, res) {
       });
     }
 });
-
+//gia na vazw pointers se map
 app.post('/usrpointers',function (req, res) {
   var body = [];
   //diavazw data
@@ -474,6 +474,135 @@ app.post('/usrpointers',function (req, res) {
               });//req on end
             }//end if
           });
+          //vazw pou eimai
+//gia login
+app.all('/userlogin',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+      //shndesh me vash
+      con.connect(function(err) {
+        var mmsg = {mssg : true};
+        console.log("Connected");
+        //mdata[...]...
+        var mquery = "SELECT username,password,email FROM user where username like \'%"+mdata.username+"%\' and email like \'%"+ mdata.email+"%\';";
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            throw err;
+          }
+          if(result.length == 0){
+            mmsg = {mssg : false, merror : "username"};
+            res.write(JSON.stringify(mmsg));
+            res.end();//end of response
+            //la8os username h email
+          }else{
+            if(result[0].password.trim() == mdata.password){
+              console.log(mmsg);
+              res.write(JSON.stringify(mmsg));
+              res.end();//end of response
+            }else{
+              mmsg = {mssg : false, merror : "password"};
+              res.write(JSON.stringify(mmsg));
+              res.end();//end of response
+            }
+          }
+        });//telos query gia info
+      });
+    });//req on end
+  }//end if
+});
+//gia login
+
+//gia register
+app.all('/userregister',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+      //shndesh me vash
+      con.connect(function(err) {
+        var mmsg = {mssg : true};
+        console.log("Connected");
+        //mdata[...]...
+        var mquery = "INSERT INTO user(username,password,email) VALUES (\'"+mdata.username+"\',\'"+ mdata.password +"\' , \'"+ mdata.email+"\');";
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            throw err;
+          }
+          if(result.length == 0){
+            mmsg = {mssg : false, merror : "username"};
+            res.write(JSON.stringify(mmsg));
+            res.end();//end of response
+            //la8os username h email
+          }else{
+            console.log(mmsg);
+            res.write(JSON.stringify(mmsg));
+            res.end();//end of response
+          }
+        });//telos query gia info
+      });
+    });//req on end
+  }//end if
+});
+//gia register
+
 
 app.listen(8080, function() {
 console.log('Node app is running on port 8080');
