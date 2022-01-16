@@ -11,7 +11,6 @@ function validateJSON(body) {
 
 f = document.getElementById('upfile');
 var mfile = f.files[0];
-console.log(mfile);
 
 if (mfile) {
     var reader = new FileReader();
@@ -19,9 +18,8 @@ if (mfile) {
     reader.onload = function (evt) {
         var a = evt.target.result;
         a = JSON.parse(a);
-        console.log(JSON.stringify(a));
         //ola einai se array gia auto den ginontai swsta extract oute stelnontai swsta
-        $.ajax({
+        const post_ajax = $.ajax({
           url: 'http://localhost:8080/adminload',
           timeout:6000 ,//3 second timeout
           //contentType: 'application/json',
@@ -46,11 +44,3 @@ if (mfile) {
         console.log( "error reading file");
     }
 }
-
-//var fr=new FileReader();
-//fr.readAsText(
-//f.files[0]
-//);
-//fr.onload=function(){alert(fr.result);}
-
-// Create WebSocket connection.

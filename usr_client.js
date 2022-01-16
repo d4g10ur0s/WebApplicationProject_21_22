@@ -53,13 +53,14 @@ var orangeIcon = new L.Icon({
 
 $('#sform').submit(function (e) {
      var dtransfered = "";
+     var usrestimation = "";
      e.preventDefault();
      var val = document.getElementById("usrsearch").value;
      if(val){
        console.log(val);
        var mmsg = {message : val};
        console.log(mmsg.message);
-     $.ajax({
+     const post_ajax = $.ajax({
        url: 'http://localhost:8080/usrpointers',
        data: JSON.stringify(mmsg),
        type: 'POST',
@@ -69,14 +70,34 @@ $('#sform').submit(function (e) {
       },
        success: function (data, stat,xhr) {
          console.log('Success: ' + data);
-         dtransfered = JSON.parse(data);//pairnw data se morfh json
-         console.log(dtransfered);
        },
        error: function (xhr, status, error) {
          console.log('Error: ' + error.message);
          $('#lblResponse').html('Error connecting to the server.');
        }
      });//prwto ajax
+     post_ajax.done(function (){
+       $.ajax({
+       url: 'http://localhost:8080/usrpointers',
+       data: JSON.stringify(mmsg),
+       type: 'GET',
+       processData: false,
+       headers: {
+          "Access-Control-Allow-Origin" : "*"
+      },
+       success: function (data, stat,xhr) {
+         console.log('Success: ' + data);
+         dtransfered = JSON.parse(data);//pairnw data se morfh json
+         usrestimation = dtransfered.message2;
+         dtransfered = dtransfered.message1;
+         dtransfered=JSON.parse(dtransfered);
+       },
+       error: function (xhr, status, error) {
+         console.log('Error: ' + error.message);
+         $('#lblResponse').html('Error connecting to the server.');
+       }
+     });//2o ajax
+   });
      $(document).ajaxComplete(function () {
        var inRange = [], latlng_a = new L.LatLng(pos_center[0],pos_center[1]), latlng_b;
        for(d in dtransfered){
@@ -88,7 +109,7 @@ $('#sform').submit(function (e) {
        dtransfered = inRange;
        console.log("egine");
        for(d in dtransfered){
-         console.log(dtransfered[d].i);
+         //console.log(dtransfered[d].i);
          var b = [dtransfered[d].i,dtransfered[d].ii,dtransfered[d].iii
          ,dtransfered[d].iv,dtransfered[d].v,dtransfered[d].vi,
          dtransfered[d].vii,dtransfered[d].viii,dtransfered[d].ix,
@@ -102,27 +123,27 @@ $('#sform').submit(function (e) {
          for(i in b){
            sum+=parseInt(i);
          }
-         console.log(sum);
+         //console.log(sum);
          sum =( parseInt(b[hour-1])/sum )*100;
          var hour = new Date().getHours();
-         console.log(sum);
+         //console.log(sum);
          var marker;
          if(sum > 66){
            marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: redIcon}).addTo(map)
-           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) +"\n User Estimation : " + usrestimation )
            .openPopup();
          }else if (sum > 65) {
            marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: orangeIcon}).addTo(map)
-           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2 )+"\n User Estimation : " + usrestimation )
            .openPopup();
          }else {
            marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: greenIcon}).addTo(map)
-           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) )
+           .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2)+"\n User Estimation : " + usrestimation )
            .openPopup();
          }
        }
      });
-
+     //topo8ethsh se selida
      $.ajax({
        async: false,
        url: this.href,
