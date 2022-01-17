@@ -27,6 +27,29 @@ function to_upload(){
   });
 }
 
+$('#dbutton').on('click',async function (e) {
+  e.preventDefault();
+  const post_ajax = $.ajax({
+    url: 'http://localhost:8080/admindelete',
+    timeout:6000 ,//3 second timeout
+    //contentType: 'application/json',
+    data: "",
+    type: 'POST',
+    processData: false,
+    success: function (data) {
+      console.log('Success: ');
+    },
+    success: function (data, stat,xhr) {
+      console.log('Success: ' + data);
+      dtransfered = JSON.parse(data);//pairnw data se morfh json
+      alert(dtransfered.msg);
+    },
+    error: function (xhr, status, error) {
+      console.log('Error: ' + error.message);
+      //$('#lblResponse').html('Error connecting to the server.');
+    },
+  });
+});
 
 
 setup_buttons();

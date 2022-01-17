@@ -362,4 +362,136 @@ $('#sform').submit(function (e) {
      btt.innerHTML =  "Username : "+kappa.username + " E-mail : " + kappa.email ; // some text to improve visualization
      usinfo.appendChild(btt);
    });
+
+   $('#nav-profile-tab').on('click', function (e) {
+     var dtransfered = "";
+     e.preventDefault();
+     console.log("geia");
+     mmsg = {name: "zirdas"};
+     post_ajax = $.ajax({
+       url: 'http://localhost:8080/uservisitcontent',
+       data: JSON.stringify(mmsg),
+       type: 'POST',
+       processData: false,
+       headers: {
+          "Access-Control-Allow-Origin" : "*"
+      },
+       success: function (data, stat,xhr) {
+         console.log('Success: ' + data);
+         dtransfered = JSON.parse(data);//pairnw data se morfh json
+         console.log(dtransfered);
+       },
+       error: function (xhr, status, error) {
+         console.log('Error: ' + error.message);
+         $('#lblResponse').html('Error connecting to the server.');
+       }
+     });//ajax gia na pairnw info gia visits
+     post_ajax.done( function (){
+       console.log(new Date(dtransfered[i].tm).toISOString().replace("T", " ").slice(0, 19));
+       for(i in dtransfered){
+         console.log("edw");
+         $("<tr><td>" + i + "</td><td>" +  dtransfered[i].pname + "</td><td>" +  dtransfered[i].num_of_people + "</td><td>" + new Date(dtransfered[i].tm).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#myvisits");
+       }
+     });
+     $(this).tab('show');
+   })
+
+   function username_corr(){
+     var p = document.getElementById("username").value,errors = [];;
+
+     if(p.length > 7){//apla panw apo 7 grammata,ola epitrepontai
+       return true;
+     }else{
+       errors.push("Username must be further that 7 digits.");
+       alert(errors.join("\n"));
+       return false;
+     }
+   }
+
+
+   function email_corr(){
+     var p = document.getElementById("email").value,errors = [];
+     console.log(p.includes(".com"));
+     if (p.search(/[@]/) > 0 && p.includes(".com")) {
+       return true;
+     }else{
+       errors.push("Your email is wrong.");
+       alert(errors.join("\n"));
+       return false;
+     }
+   }
+
+   function password_corr() {
+       var p = document.getElementById("password").value,
+           errors = [];
+       if (p.length < 8) {
+           errors.push("Your password must be at least 8 characters");
+       }
+       if (p.search(/[A-Z]/i) < 0) {
+           errors.push("Your password must contain at least one letter.");
+       }
+       if (p.search(/[0-9]/) < 0) {
+           errors.push("Your password must contain at least one digit.");
+       }
+       if (p.search(/[!@#$%^&*]/) < 0) {
+           errors.push("Your password must contain at least one symbol.");
+       }
+       if (errors.length > 0) {
+           alert(errors.join("\n"));
+           return false;
+       }
+       return true;
+       /*var regularExpression = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$/;
+       return regularExpression.test(str);*/
+   }
+
+$('#new_username').on('click',async function (e) {
+  e.preventDefault();
+  var mmsg = {
+    current_username : "zirdas",
+    username : "",
+    password : "",
+    email : ""
+  };
+
+  if (username_corr()) {
+    //ayto prepei na phgainei eite se admin eite se user
+    mmsg.username = document.getElementById("username").value;
+  }//endif
+  if (password_corr()) {
+    mmsg.password=document.getElementById("password").value;
+  }
+  if(email_corr()){
+    mmsg.email = document.getElementById("email").value;
+  }
+  console.log(mmsg);
+       $.ajax({
+         url: 'http://localhost:8080/userchange',
+         data: JSON.stringify(mmsg),
+         type: 'POST',
+         processData: false,
+         headers: {
+           "Access-Control-Allow-Origin" : "*"
+         },
+         success: function (data, stat,xhr) {
+           console.log('success' + data);
+           data = JSON.parse(data);
+           if(data.mssg){
+           console.log("done");
+           }else{
+             console.log(data.error)
+             if(data.merror == "password"){
+               alert("Λάθος password.");
+             }else{
+               alert("Λάθος username η e-mail.\nΉ νέα εγγραφή.");
+             }
+           }
+         },
+         error: function (xhr, ajax, err) {
+           console.error('error: ' + JSON.stringify(xhr));
+           console.error(JSON.stringify(err));
+         }
+       });//end ajax
+});
+
    getLocation();

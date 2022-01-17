@@ -46,8 +46,56 @@ app.use(cors({
     methods: "GET, POST, PUT, PATCH , DELETE, OPTIONS",
     origin: true
 }));
-
-
+//o admin diagrafei info
+app.all('/admindelete',async function (req, res) {
+  var meres = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+          res.writeHead(200);
+          res.end();
+    }else if(req.method==='POST'){
+      //h katallhlh kefalida
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin' : '*',
+        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+      });
+      //otan exeis diavasei olo to data
+      req.on("data",()=>{});
+      req.on("end",async () => {
+        //dhmiourgia connection me vash
+        const con = mysql.createConnection({
+          host: "localhost",
+          user: "root",
+          password: "Den8aKsexasw",
+          database: "projectweb",
+          multipleStatements: true
+        });
+        //shndesh me vash
+        con.connect(function(err) {
+          for(i in meres){
+            console.log(meres[i]);
+            var mquery = "DELETE FROM "+meres[i]+" WHERE id like \'%%\';";
+            con.query(mquery, function (err, result, fields) {
+              if (err){
+                throw err;
+              }
+            });//telos query gia delete
+          }
+          var mquery = "DELETE FROM point_of_interest WHERE name like \'%%\';";
+          con.query(mquery, function (err, result, fields) {
+            if (err){
+              //throw err;
+            }
+          });//telos query gia delete
+        });//telos sundeshs
+      });//req on end
+      res.end();
+    }
+});
+//o admin vazei info
 var admin_message = {msg : "Έγινε."};
 app.all('/adminload',async function (req, res) {
   console.log('Request received: ');
@@ -131,6 +179,7 @@ app.all('/adminload',async function (req, res) {
             }
             //throw err;
             if(sunexeia){
+              admin_message = {msg : "Έγινε."};
               console.log(sunexeia);
               //vazw ka8e eidos
               for(tp in mtypes){
@@ -635,6 +684,137 @@ app.all('/userregister',function (req, res) {
   }//end if
 });
 //gia register
+
+//vazw visit content
+app.all('/uservisitcontent',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      mdata = mdata.name;
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+        //shndesh me vash
+        con.connect(function(err) {
+          console.log("Connected");
+          //mdata[...]...
+          var mquery = "SELECT tm,num_of_people,pname FROM visit WHERE username like \'%"+mdata+"%\';";
+          console.log(mquery);
+          con.query(mquery, function (err, result, fields) {
+            if (err){
+              throw err;
+            }
+            console.log(result);
+            res.write(JSON.stringify(result));
+            res.end();//end of response
+          });//telos query gia info
+        });
+      });//req on end
+    }//end if
+  });
+  //vazw pou eimai
+
+//vazw visit content
+app.all('/userchange',async function (req, res) {
+    console.log('Request received: ');
+    util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+    util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+    if(req.method==='OPTIONS'){
+            res.writeHead(200);
+            res.end();
+      }else if(req.method==='POST'){
+        var body = [];
+        //h katallhlh kefalida
+        res.writeHead(200, {
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin' : '*',
+          'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+        });
+        //diavase data
+        req.on("data", (chunk) => {
+          console.log(chunk);
+          body.push(chunk);
+        });
+        //otan exeis diavasei olo to data
+        req.on("end",async () => {
+          var mdata = Buffer.concat(body).toString();
+          mdata = JSON.parse(mdata);//parsing json
+          console.log(mdata);
+          //dhmiourgia connection me vash
+          var con = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "Den8aKsexasw",
+            database: "projectweb",
+            multipleStatements: true
+          });
+          //shndesh me vash
+          con.connect(async function(err) {
+            console.log("Connected");
+            //mdata[...]...
+            if(mdata.username.length > 1){
+              var mquery = "UPDATE user SET username=\'"+mdata.username+"\' WHERE username like \'"+mdata.current_username+"\';";//prepei na vrw ke to error
+              console.log(mquery);
+              const prwto = await con.query(mquery, function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+                console.log(result);
+              });//telos query gia info
+            }
+            if (mdata.password.length > 1) {
+              var mquery = "UPDATE user SET password=\'"+mdata.password+"\' WHERE username like \'%"+mdata.current_username+"%\';";
+              console.log(mquery);
+              const deytero = await con.query(mquery, function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+                console.log(result);
+              });//telos query gia info
+            }
+            if(mdata.email.length > 1){
+              var mquery = "UPDATE user SET email=\'"+mdata.email+"\' WHERE username like \'%"+mdata.current_username+"%\';";
+              console.log(mquery);
+              const trito = await con.query(mquery, function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+                console.log(result);
+              });//telos query gia info
+            }
+            const grafei = await res.write(JSON.stringify({mssg : 1, message : "egine"}));
+            res.end();//end of response
+          });
+        });//req on end
+      }//end if
+    });
+    //vazw pou eimai
 
 
 app.listen(8080, function() {
