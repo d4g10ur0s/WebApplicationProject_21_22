@@ -56,15 +56,15 @@ $('#sform').submit(function (e) {
      var usrestimation = "";
      e.preventDefault();
      var val = document.getElementById("usrsearch").value;
-     if(val){
-       console.log(val);
+     if(val){//an yparxei timh entos tu search bar
        var mmsg = {message : val};
-       console.log(mmsg.message);
+       console.log(mmsg.message);//emfoliasmos ?
      const post_ajax = $.ajax({
        url: 'http://localhost:8080/usrpointers',
-       data: JSON.stringify(mmsg),
+       data: JSON.stringify(mmsg),//to kanw stringify
        type: 'POST',
        processData: false,
+       timeout:3000, //3 second timeout
        headers: {
           "Access-Control-Allow-Origin" : "*"
       },
@@ -247,7 +247,10 @@ $('#sform').submit(function (e) {
         }else{
           //epikoinwnia me webserver
           console.log(datval + " " + timval);
-          var mmsg = {mssg : ['zirdas', 1, datval + " " + timval]};
+          var usrname = document.getElementById('exw_username').innerHTML;
+          console.log(usrname);
+          usrname = usrname.split(' ');
+          var mmsg = {mssg : [usrname[2], 1, datval + " " + timval]};
           //var mmsg = "";
           $.ajax({
             url: 'http://localhost:8080/userkrousma',
@@ -269,132 +272,153 @@ $('#sform').submit(function (e) {
           });//ajax gia na vazw timestamp gia krousma
         }
       });
-    //se poio point eimai
-    function clickPoint(ev){
-      console.log(ev.currentTarget.myParam);
-      var mmsg = {msg : ['zirdas', ev.currentTarget.myParam]};
-      $.ajax({
-        url: 'http://localhost:8080/usermeros',
-        data: JSON.stringify(mmsg),
-        type: 'POST',
-        processData: false,
-        headers: {
-           "Access-Control-Allow-Origin" : "*"
-       },
-        success: function (data, stat,xhr) {
-          console.log('Success: ' + data);
-          dtransfered = JSON.parse(data);//pairnw data se morfh json
-          console.log(dtransfered);
-        },
-        error: function (xhr, status, error) {
-          console.log('Error: ' + error.message);
-          $('#lblResponse').html('Error connecting to the server.');
-        }
-      });//ajax gia na vazw pou eimai
-      const myNode = document.getElementById("episkepseis");
-      while (myNode.firstChild) {
-        myNode.removeChild(myNode.lastChild);
-      }//vgazw ola ta merh pou mporei na eimai
-      // koumpi gia ektimhsh
-      const btt = document.createElement("ektimish");
-      btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
-      btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
-      btt.style.marginRight="5px";
-      var today = new Date();
-      console.log("ginetai");
-      var date = today.getFullYear()+'-'+ConvertNumberToTwoDigitString(today.getMonth()+1)+'-'+ConvertNumberToTwoDigitString(today.getDate());
-      var time = ConvertNumberToTwoDigitString(today.getHours()) + ":" + ConvertNumberToTwoDigitString(today.getMinutes());
-      btt.myParam = date+ ' ' + time;//etsi mporw na anagnwrisw to visit entos ths vashs(username ke timestamp)
-      btt.addEventListener('click', clickEktimish, true);
-      //btt.addEventListener('click', clickPoint, true);
-      //input ektimhshs
-      const inp = document.createElement("input");
-      inp.setAttribute('type',"text");//gia input
-      inp.setAttribute('id',"ektimhsh_input");//gia input
-      inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
-      inp.style.width = '50px';
-      inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
-      //ta vazw
-      myNode.appendChild(btt);
-      myNode.appendChild(inp);
-    }//se poio point eimai
-    function clickEktimish(ev){
-      console.log(ev.currentTarget.myParam);
-      if( isNaN( parseInt(document.getElementById("ektimhsh_input").value) )){//an den einai int mhn synexeis
-        alert("Η Εκτίμηση είναι ακέραιος αριθμός.");
-      }else{
-        var mmsg = {msg : ['zirdas', document.getElementById("ektimhsh_input").value ,ev.currentTarget.myParam]};
-        $.ajax({
-          url: 'http://localhost:8080/userektimhsh',
-          data: JSON.stringify(mmsg),
-          type: 'POST',
-          processData: false,
-          headers: {
-            "Access-Control-Allow-Origin" : "*"
-          },
-          success: function (data, stat,xhr) {
-            console.log('Success: ' + data);
-            dtransfered = JSON.parse(data);//pairnw data se morfh json
-            console.log(dtransfered);
-          },
-          error: function (xhr, status, error) {
-            console.log('Error: ' + error.message);
-            $('#lblResponse').html('Error connecting to the server.');
-          }
-        });//ajax gia na vazw pou eimai
-        const myNode = document.getElementById("episkepseis");
-        while (myNode.firstChild) {
-          myNode.removeChild(myNode.lastChild);
-        }//vgazw ola ta merh pou mporei na eimai
-      }//telos else
-    }//telos ektimhshs
-   //epestrepse mou ton xarth
-   function ConvertNumberToTwoDigitString(n) {
-     return n > 9 ? "" + n : "0" + n;
-   }
-   $( document).ready(function() {
-     console.log( "ready!" );
-     alert(localStorage.getItem("storageName"));
-     const usinfo = document.getElementById('user_info');
-     // creating the span element, then add a class attribute
-     var kappa = JSON.parse(localStorage.getItem("storageName"));//to prwto akronhmio einai to id
-     const btt = document.createElement("usrinfo");
-     btt.innerHTML =  "Username : "+kappa.username + " E-mail : " + kappa.email ; // some text to improve visualization
-     usinfo.appendChild(btt);
-   });
-
-   $('#nav-profile-tab').on('click', function (e) {
-     var dtransfered = "";
-     e.preventDefault();
-     console.log("geia");
-     mmsg = {name: "zirdas"};
-     post_ajax = $.ajax({
-       url: 'http://localhost:8080/uservisitcontent',
-       data: JSON.stringify(mmsg),
-       type: 'POST',
-       processData: false,
-       headers: {
-          "Access-Control-Allow-Origin" : "*"
+//se poio point eimai
+function clickPoint(ev){
+  console.log(ev.currentTarget.myParam);
+  var usrname = document.getElementById('exw_username').innerHTML;
+  usrname = usrname.split(' ');
+  var mmsg = {msg : [usrname[2], ev.currentTarget.myParam]};
+  $.ajax({
+    url: 'http://localhost:8080/usermeros',
+    data: JSON.stringify(mmsg),
+    type: 'POST',
+    processData: false,
+    headers: {
+      "Access-Control-Allow-Origin" : "*"
+    },
+    success: function (data, stat,xhr) {
+      console.log('Success: ' + data);
+      dtransfered = JSON.parse(data);//pairnw data se morfh json
+      console.log(dtransfered);
+    },
+    error: function (xhr, status, error) {
+      console.log('Error: ' + error.message);
+      $('#lblResponse').html('Error connecting to the server.');
+    }
+  });//ajax gia na vazw pou eimai
+  const myNode = document.getElementById("episkepseis");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.lastChild);
+  }//vgazw ola ta merh pou mporei na eimai
+  // koumpi gia ektimhsh
+  const btt = document.createElement("ektimish");
+  btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
+  btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
+  btt.style.marginRight="5px";
+  var today = new Date();
+  console.log("ginetai");
+  var date = today.getFullYear()+'-'+ConvertNumberToTwoDigitString(today.getMonth()+1)+'-'+ConvertNumberToTwoDigitString(today.getDate());
+  var time = ConvertNumberToTwoDigitString(today.getHours()) + ":" + ConvertNumberToTwoDigitString(today.getMinutes());
+  btt.myParam = date+ ' ' + time;//etsi mporw na anagnwrisw to visit entos ths vashs(username ke timestamp)
+  btt.addEventListener('click', clickEktimish, true);
+  //btt.addEventListener('click', clickPoint, true);
+  //input ektimhshs
+  const inp = document.createElement("input");
+  inp.setAttribute('type',"text");//gia input
+  inp.setAttribute('id',"ektimhsh_input");//gia input
+  inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
+  inp.style.width = '50px';
+  inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
+  //ta vazw
+  myNode.appendChild(btt);
+  myNode.appendChild(inp);
+}
+//se poio point eimai
+//ektimhsh apo user
+function clickEktimish(ev){
+  console.log(ev.currentTarget.myParam);
+  if( isNaN( parseInt(document.getElementById("ektimhsh_input").value) )){//an den einai int mhn synexeis
+    alert("Η Εκτίμηση είναι ακέραιος αριθμός.");
+  }else{
+    var usrname = document.getElementById('exw_username').innerHTML;
+    usrname = usrname.split(' ');
+    var mmsg = {msg : [usrname[2], document.getElementById("ektimhsh_input").value ,ev.currentTarget.myParam]};
+    $.ajax({
+      url: 'http://localhost:8080/userektimhsh',
+      data: JSON.stringify(mmsg),
+      type: 'POST',
+      processData: false,
+      headers: {
+        "Access-Control-Allow-Origin" : "*"
       },
-       success: function (data, stat,xhr) {
-         console.log('Success: ' + data);
-         dtransfered = JSON.parse(data);//pairnw data se morfh json
-         console.log(dtransfered);
-       },
-       error: function (xhr, status, error) {
-         console.log('Error: ' + error.message);
-         $('#lblResponse').html('Error connecting to the server.');
-       }
-     });//ajax gia na pairnw info gia visits
-     post_ajax.done( function (){
-       console.log(new Date(dtransfered[i].tm).toISOString().replace("T", " ").slice(0, 19));
-       for(i in dtransfered){
-         console.log("edw");
-         $("<tr><td>" + i + "</td><td>" +  dtransfered[i].pname + "</td><td>" +  dtransfered[i].num_of_people + "</td><td>" + new Date(dtransfered[i].tm).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#myvisits");
-       }
-     });
-     $(this).tab('show');
-   })
+      success: function (data, stat,xhr) {
+        console.log('Success: ' + data);
+        dtransfered = JSON.parse(data);//pairnw data se morfh json
+        console.log(dtransfered);
+      },
+      error: function (xhr, status, error) {
+        console.log('Error: ' + error.message);
+        $('#lblResponse').html('Error connecting to the server.');
+      }
+    });//ajax gia na vazw pou eimai
+    const myNode = document.getElementById("episkepseis");
+    while (myNode.firstChild) {
+      myNode.removeChild(myNode.lastChild);
+    }//vgazw ola ta merh pou mporei na eimai
+  }//telos else
+}//telos ektimhshs
+
+function ConvertNumberToTwoDigitString(n) {
+  return n > 9 ? "" + n : "0" + n;
+}
+
+//to storage me info gia user
+$( document).ready(function() {
+  console.log( "ready!" );
+  alert(localStorage.getItem("storageName"));
+  const usinfo = document.getElementById('user_info');
+  // creating the span element, then add a class attribute
+  var kappa = JSON.parse(localStorage.getItem("storageName"));//to prwto akronhmio einai to id
+  const btt = document.createElement("usrinfo");
+  btt.setAttribute('id','exw_username');
+  btt.innerHTML =  "Username : "+kappa.username + " E-mail : " + kappa.email ; // some text to improve visualization
+  usinfo.appendChild(btt);
+});
+//to storage me info gia user
+
+$('#nav-profile-tab').on('click', function (e) {
+  var dtransfered = "";
+  var mvisits , mkrousma;
+  e.preventDefault();
+  var usrname = document.getElementById('exw_username').innerHTML;
+  console.log(usrname[2]);
+  usrname = usrname.split(' ');
+  mmsg = {name: usrname[2]};
+
+  post_ajax = $.ajax({
+    url: 'http://localhost:8080/uservisitcontent',
+    data: JSON.stringify(mmsg),
+    type: 'POST',
+    processData: false,
+    headers: {
+      "Access-Control-Allow-Origin" : "*"
+    },
+    success: function (data, stat,xhr) {
+      console.log('Success: ' + data);
+      dtransfered = JSON.parse(data);//pairnw data se morfh json
+      console.log(dtransfered);
+      mvisits = dtransfered.message1;
+      mkrousma = dtransfered.message2;
+    },
+    error: function (xhr, status, error) {
+      console.log('Error: ' + error.message);
+      $('#lblResponse').html('Error connecting to the server.');
+    }
+  });//ajax gia na pairnw info gia visits
+  post_ajax.done( function (){
+    for(i in mvisits){
+      console.log(new Date(mvisits[i].tm).toISOString().replace("T", " ").slice(0, 19));
+      console.log("edw");
+      $("<tr><td>" + i + "</td><td>" +  mvisits[i].pname + "</td><td>" +  mvisits[i].num_of_people + "</td><td>" + new Date(mvisits[i].tm).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#myvisits");
+    }
+    for(i in mkrousma){
+      console.log(new Date(mkrousma[i].pote).toISOString().replace("T", " ").slice(0, 19));
+      console.log("edw");
+      $("<tr><td>" + i + "</td><td>" +  mkrousma[i].username + "</td><td>" + new Date(mkrousma[i].pote).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#mykrousma");
+    }
+  });
+  $(this).tab('show');
+})//telos gia nav tab
 
    function username_corr(){
      var p = document.getElementById("username").value,errors = [];;
