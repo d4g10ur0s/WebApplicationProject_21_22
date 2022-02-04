@@ -1,0 +1,21 @@
+.btn-color {
+    background-color: #0e1c36;
+    color: rgb(41, 11, 11);
+}
+
+
+/*login page*/
+
+#error_msg {
+    color: red;
+}
+
+a,
+a:hover {
+    color: #333
+}
+
+form i {
+    margin-left: -30px;
+    cursor: pointer;
+}
