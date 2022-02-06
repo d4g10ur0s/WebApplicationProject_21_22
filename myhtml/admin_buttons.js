@@ -1,12 +1,22 @@
 function setup_buttons() {
   document.getElementById('upfile').disabled = true;
-  document.getElementById('eisagwgh').addEventListener("click", enable_files);
-  var finput = document.getElementById("upfile");
-  finput.addEventListener('change',to_upload);
+  document.getElementById('eisagwgh').addEventListener("click", upl_enable_files);
+  document.getElementById('enhmerwsh').addEventListener("click", upd_enable_files);
+
 }
 
-function enable_files(){
+function upl_enable_files(){
+  var elem = document.getElementById('upfile');
+  document.getElementById("upfile").replaceWith(elem.cloneNode(true));
   document.getElementById('upfile').disabled = false;
+  document.getElementById("upfile").addEventListener('change',to_upload);
+}
+
+function upd_enable_files(){
+  var elem = document.getElementById('upfile');
+  document.getElementById("upfile").replaceWith(elem.cloneNode(true));
+  document.getElementById('upfile').disabled = false;
+  document.getElementById("upfile").addEventListener('change',to_refresh);
 }
 
 function to_upload(){
@@ -15,6 +25,24 @@ function to_upload(){
   //var formData = new FormData(myform);
   $.ajax({
     url : 'client_side.js',
+    type : 'GET',
+    data : myform.files[0],
+    processData: false,  // tell jQuery not to process the data
+    contentType: false,  // tell jQuery not to set contentType
+    success : function(data) {
+      alert("sunevh");
+    //  console.log(data);
+    //  alert(data);
+    }
+  });
+}
+
+function to_refresh(){
+  console.log("ne");
+  var myform = document.getElementById("upfile");
+  //var formData = new FormData(myform);
+  $.ajax({
+    url : 'admin_enhmerwsh.js',
     type : 'GET',
     data : myform.files[0],
     processData: false,  // tell jQuery not to process the data

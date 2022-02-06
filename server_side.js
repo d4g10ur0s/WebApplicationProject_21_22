@@ -53,48 +53,70 @@ app.all('/admindelete',async function (req, res) {
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
   if(req.method==='OPTIONS'){
-          res.writeHead(200);
-          res.end();
-    }else if(req.method==='POST'){
-      //h katallhlh kefalida
-      res.writeHead(200, {
-        'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin' : '*',
-        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //otan exeis diavasei olo to data
+    req.on("data",()=>{});
+    req.on("end",async () => {
+      //dhmiourgia connection me vash
+      const con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
       });
-      //otan exeis diavasei olo to data
-      req.on("data",()=>{});
-      req.on("end",async () => {
-        //dhmiourgia connection me vash
-        const con = mysql.createConnection({
-          host: "localhost",
-          user: "root",
-          password: "Den8aKsexasw",
-          database: "projectweb",
-          multipleStatements: true
-        });
-        //shndesh me vash
-        con.connect(function(err) {
-          for(i in meres){
-            console.log(meres[i]);
-            var mquery = "DELETE FROM "+meres[i]+" WHERE id like \'%%\';";
-            con.query(mquery, function (err, result, fields) {
-              if (err){
-                throw err;
-              }
-            });//telos query gia delete
-          }
-          var mquery = "DELETE FROM point_of_interest WHERE name like \'%%\';";
+      //shndesh me vash
+      con.connect(function(err) {
+        for(i in meres){
+          console.log(meres[i]);
+          var mquery = "DELETE FROM "+meres[i]+" WHERE id like \'%%\';";
           con.query(mquery, function (err, result, fields) {
             if (err){
-              //throw err;
+              throw err;
             }
+            console.log(result);
           });//telos query gia delete
-        });//telos sundeshs
-      });//req on end
-      res.end();
-    }
+        }
+        var mquery = "DELETE FROM point_of_interest WHERE name like \'%%\';";
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            //throw err;
+          }
+        });//telos query gia delete
+        con.query("SELECT table_name FROM information_schema.tables WHERE table_schema = \'projectweb\'", function(err, tables){
+          for(i in tables){//gia ka8e onoma trapeziou
+            console.log(tables[i].TABLE_NAME);
+            if(tables[i].TABLE_NAME=='user' || tables[i].TABLE_NAME == 'visit' || tables[i].TABLE_NAME == 'krousma'){//gia user
+              var mquery = "DELETE FROM "+tables[i].TABLE_NAME+" WHERE username like \'%%\';";
+              con.query(mquery, function (err, result, fields) {
+                if (err){
+                  //throw err;
+                }
+              });//telos query gia delete
+            }else if(!(tables[i].TABLE_NAME=='admin' && tables[i].TABLE_NAME in meres && tables[i].TABLE_NAME == 'point_of_interest') ){//gia akura tables
+              var mquery = "DELETE FROM "+tables[i].TABLE_NAME+" WHERE pointid like \'%%\';";
+              con.query(mquery, function (err, result, fields) {
+                if (err){
+                  //throw err;
+                }
+              });//telos query gia delete
+            }//den diagrafetai o admin
+          }//end for
+        });//gia na parw onoma
+      });//telos sundeshs
+    });//req on end
+    res.end();
+  }
 });
+
 //o admin vazei info
 var admin_message = {msg : "Έγινε."};
 app.all('/adminload',async function (req, res) {
@@ -137,6 +159,8 @@ app.all('/adminload',async function (req, res) {
         //lista gia types
         var mtypes = {};
         for(k in mdata){
+          console.log(mdata[k]);
+
           //gia na vazw hmeres
           for(j in mdata[k].populartimes){
             if( !(mdata[k].populartimes[j].name in mdayz)){
@@ -217,6 +241,158 @@ app.all('/adminload',async function (req, res) {
     }
 });
 //o admin vazei pragmata
+
+//o admin enhmerwnei
+var admin_message = {msg : "Έγινε."};
+app.all('/admin_enhmerwsh',async function (req, res) {
+  //const query = util.promisify(con.query).bind(con);
+
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+          res.writeHead(200);
+          res.end();
+    }else if(req.method==='POST'){
+      //h katallhlh kefalida
+      res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin' : '*',
+        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+      });
+      var body = [];
+      //diavase data
+      req.on("data", (chunk) => {
+        body.push(chunk);
+      });
+      //otan exeis diavasei olo to data
+      req.on("end",async () => {
+        var mdata = Buffer.concat(body).toString();
+        mdata = JSON.parse(mdata);//parsing json
+        //dhmiourgia connection me vash
+        const con = mysql.createConnection({
+          host: "localhost",
+          user: "root",
+          password: "Den8aKsexasw",
+          database: "projectweb",
+          multipleStatements: true
+        });
+        //shndesh me vash
+
+        console.log("Connected");
+        var busert = [];         //vazw ta panta mesa se lista
+        //dict gia days
+        var mdayz = {};
+        //lista gia types
+        var mtypes = {};
+        for(k in mdata){
+          //gia na vazw hmeres
+          for(j in mdata[k].populartimes){
+            if( !(mdata[k].populartimes[j].name in mdayz)){
+              //console.log(mdata[0]);
+              mdayz[mdata[k].populartimes[j].name]=[];
+              mdayz[mdata[k].populartimes[j].name].push([mdata[k].id].concat(mdata[k].populartimes[j].data));
+            }//an den einai valto
+            else{
+              mdayz[mdata[k].populartimes[j].name].push([mdata[k].id].concat(mdata[k].populartimes[j].data));
+            }
+          }//end for populartimes
+          //prepei na parw ta types
+          for(type in mdata[k].types){
+            if( mdata[k].types[type] == "point_of_interest" ){
+              continue;//ayto to table yparxei hdh ke einai axriasto ws type
+            }
+            if( !(mdata[k].types[type] in mtypes)){
+              //console.log(mdata[0]);
+              mtypes[mdata[k].types[type]]=[];
+              mtypes[mdata[k].types[type]].push([mdata[k].id]);
+            }//an den einai valto
+            else{
+              mtypes[mdata[k].types[type]].push([mdata[k].id]);
+            }
+          }
+          busert.push([mdata[k].id,mdata[k].name,mdata[k].address,mdata[k].coordinates.lat,mdata[k].coordinates.lng,mdata[k].rating,mdata[k].rating_n]);
+        }//end for proetoimasias
+        var sunexeia = true;
+        await con.connect(async function(err) {
+          const query = util.promisify(con.query).bind(con);
+
+          for(point in mdata){
+            //1. delete ta katallhla
+            var temp_types = mdata[point].types;
+            for(kind in temp_types){
+              if(!(temp_types[kind]=='point_of_interest')){
+                var result = await query("DELETE FROM "+temp_types[kind]+" WHERE pointid like \'%"+mdata[point].id+"%\';");
+                //await con.query(mquery,async function (err, result, fields) {
+                //});
+              }
+            }//gia na kanw delete se types
+            var meres = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            for(mera in meres){
+              var mquery = "DELETE FROM "+meres[mera]+" WHERE id like \'%"+mdata[point].id+"%\';";
+              await con.query(mquery,async function (err, result, fields) {
+                if (err){
+                  throw err;
+                }
+              });
+            }//gia na kanw delete se types
+            //2. svhnw apo point_of_interest
+            var result = await query("DELETE FROM point_of_interest WHERE id like \'%"+mdata[point].id+"%\';");
+            console.log(result);
+            if(result.affectedRows > 0){
+              sunexeia = true;
+            }else{
+              console.log("Edw eimai " + result.affectedRows);
+              sunexeia=false;
+            }
+          }//endfor
+          //vazw point of interest info (id name address lat lon rating rating_n)
+          //mdata[...]...
+          if(sunexeia){
+            var mquery = "INSERT INTO point_of_interest(id,name,address,lat,lon,rating,rating_n) VALUES ?";
+
+            await con.query(mquery,[busert], async function (err, result, fields) {
+              //throw err;
+              admin_message = {msg : "Έγινε."};
+              console.log(sunexeia);
+              //vazw ka8e eidos
+              for(tp in mtypes){
+                con.query("create table if not exists "+tp+"(pointid varchar(30));", function (err, result, fields) {
+                  if (err){
+                    //throw err;
+                  }
+                });//telos query_1
+                //vazw to sxetiko id
+                var tload = mtypes[tp];
+                var mquery = "INSERT INTO "+tp+"(pointid) VALUES ?";
+                con.query(mquery,[tload] ,function (err, result, fields) {
+                  if (err){
+                    //throw err;
+                  }
+                });//telos query_2
+              }//endfor
+              // vazw ka8e eidos
+              //vazw se hmeres
+              for(d in mdayz){
+                console.log("den mphke");
+                var mquery = "INSERT INTO "+d+"(id,i,ii,iii,iv,v,vi,vii,viii,ix,x,xi,xii,xiii,xiv,xv,xvi,xvii,xviii,xix,xx,xxi,xxii,xxiii,xxiv) VALUES ?";
+                con.query(mquery,[mdayz[d]], function (err, result, fields) {
+                  if (err){
+                    //throw err;
+                  }
+                });//telos query gia mia hmera
+              }//vazw hmeres
+            });//telos query gia info
+          }//end of sunexeia
+          admin_message = {msg : "Έγινε."};
+          await res.write(JSON.stringify(admin_message));
+          return res.end();//telos sundeshs
+        });//telos connect
+      });
+    }
+});
+//o admin enhmerwnei
+
 //o admin vlepei panw statistika
 app.all('/admin_count',async function (req, res) {
   console.log('Request received: ');
@@ -352,6 +528,7 @@ app.all('/admin_count',async function (req, res) {
 //o admin vlepei panw statistika
 //gia na vazw pointers se map
 app.all('/usrpointers',async function (req, res) {
+
   var mymessage = {message1 : [],message2 : [],message3: [],message4 : [],message5 :""};
   done = false;
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
@@ -475,7 +652,8 @@ app.all('/userloc',function (req, res) {
     res.writeHead(200, {
       'Content-Type': 'text/plain',
       'Access-Control-Allow-Origin' : '*',
-      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+      'cache-control': 'public, max-age=5'
     });
     //diavase data
     req.on("data", (chunk) => {
@@ -630,108 +808,109 @@ app.all('/userkrousma',function (req, res) {
     });//req on end
   }//end if
 });
-      //vazw pou eimai
-      app.all('/usermeros',function (req, res) {
-        console.log('Request received: ');
-        util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
-        util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
-        if(req.method==='OPTIONS'){
-                res.writeHead(200);
-                res.end();
-          }else if(req.method==='POST'){
-            var body = [];
-            //h katallhlh kefalida
-            res.writeHead(200, {
-              'Content-Type': 'text/plain',
-              'Access-Control-Allow-Origin' : '*',
-              'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
-            });
-            //diavase data
-            req.on("data", (chunk) => {
-              console.log(chunk);
-              body.push(chunk);
-            });
-            //otan exeis diavasei olo to data
-            req.on("end", () => {
-              var mdata = Buffer.concat(body).toString();
-              mdata = JSON.parse(mdata);//parsing json
-              mdata = mdata.msg;6
-              console.log(mdata);
-              //dhmiourgia connection me vash
-              var con = mysql.createConnection({
-                host: "localhost",
-                user: "root",
-                password: "Den8aKsexasw",
-                database: "projectweb",
-                multipleStatements: true
-              });
-              //shndesh me vash
-              con.connect(function(err) {
-                console.log("Connected");
-                //mdata[...]...
-                var mquery = "INSERT INTO visit(username,pname) VALUES (\'"+mdata[0]+"\', \'"+ mdata[1]+"\');";
-                con.query(mquery, function (err, result, fields) {
-                  if (err){
-                    throw err;
-                  }
-                });//telos query gia info
-              });
-              res.end();//end of response
-            });//req on end
-          }//end if
-        });//vazw pou eimai
-        //vazw ektimhsh
-        app.all('/userektimhsh',function (req, res) {
-          console.log('Request received: ');
-          util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
-          util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
-          if(req.method==='OPTIONS'){
-                  res.writeHead(200);
-                  res.end();
-            }else if(req.method==='POST'){
-              var body = [];
-              //h katallhlh kefalida
-              res.writeHead(200, {
-                'Content-Type': 'text/plain',
-                'Access-Control-Allow-Origin' : '*',
-                'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
-              });
-              //diavase data
-              req.on("data", (chunk) => {
-                console.log(chunk);
-                body.push(chunk);
-              });
-              //otan exeis diavasei olo to data
-              req.on("end", () => {
-                var mdata = Buffer.concat(body).toString();
-                mdata = JSON.parse(mdata);//parsing json
-                mdata = mdata.msg;
-                console.log(mdata);
-                //dhmiourgia connection me vash
-                var con = mysql.createConnection({
-                  host: "localhost",
-                  user: "root",
-                  password: "Den8aKsexasw",
-                  database: "projectweb",
-                  multipleStatements: true
-                });
-                //shndesh me vash
-                con.connect(function(err) {
-                  console.log("Connected");
-                  //mdata[...]...
-                  var mquery = "UPDATE visit SET ekt="+1+",num_of_people="+ mdata[1]+" WHERE username like \'%"+mdata[0]+"%\' AND tm like \'%"+mdata[2]+"%\';";
-                  console.log(mquery);
-                  con.query(mquery, function (err, result, fields) {
-                    if (err){
-                      throw err;
-                    }
-                  });//telos query gia info
-                });
-                res.end();//end of response
-              });//req on end
-            }//end if
-          });
-          //vazw pou eimai
+//vazw pou eimai
+app.all('/usermeros',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+      'cache-control': 'public, max-age=300'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      mdata = mdata.msg;
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+      //shndesh me vash
+      con.connect(function(err) {
+        console.log("Connected");
+        //mdata[...]...
+        var mquery = "INSERT INTO visit(username,pname) VALUES (\'"+mdata[0]+"\', \'"+ mdata[1]+"\');";
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            throw err;
+          }
+        });//telos query gia info
+      });
+      res.end();//end of response
+    });//req on end
+  }//end if
+});//vazw pou eimai
+//vazw ektimhsh
+app.all('/userektimhsh',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      mdata = mdata.msg;
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+      //shndesh me vash
+      con.connect(function(err) {
+        console.log("Connected");
+        //mdata[...]...
+        var mquery = "UPDATE visit SET ekt="+1+",num_of_people="+ mdata[1]+" WHERE username like \'%"+mdata[0]+"%\' AND tm like \'%"+mdata[2]+"%\';";
+        console.log(mquery);
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            throw err;
+          }
+        });//telos query gia info
+      });
+      res.end();//end of response
+    });//req on end
+  }//end if
+});
+//vazw pou eimai
 //gia login
 app.all('/userlogin',function (req, res) {
   console.log('Request received: ');
@@ -797,7 +976,7 @@ app.all('/userlogin',function (req, res) {
     });//req on end
   }//end if
 });
-//gia login
+//gia login user
 
 //gia register
 app.all('/userregister',function (req, res) {
@@ -859,6 +1038,73 @@ app.all('/userregister',function (req, res) {
   }//end if
 });
 //gia register
+
+//gia login admin
+app.all('/adminlogin',function (req, res) {
+  console.log('Request received: ');
+  util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
+  util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  if(req.method==='OPTIONS'){
+    res.writeHead(200);
+    res.end();
+  }else if(req.method==='POST'){
+    var body = [];
+    //h katallhlh kefalida
+    res.writeHead(200, {
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin' : '*',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
+    });
+    //diavase data
+    req.on("data", (chunk) => {
+      console.log(chunk);
+      body.push(chunk);
+    });
+    //otan exeis diavasei olo to data
+    req.on("end", () => {
+      var mdata = Buffer.concat(body).toString();
+      mdata = JSON.parse(mdata);//parsing json
+      console.log(mdata);
+      //dhmiourgia connection me vash
+      var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "Den8aKsexasw",
+        database: "projectweb",
+        multipleStatements: true
+      });
+      //shndesh me vash
+      con.connect(function(err) {
+        var mmsg = {mssg : true};
+        console.log("Connected");
+        //mdata[...]...
+        var mquery = "SELECT username,password FROM admin where username like \'%"+mdata.username+"%\' ;";
+        con.query(mquery, function (err, result, fields) {
+          if (err){
+            throw err;
+          }
+          if(result.length == 0){
+            mmsg = {mssg : false, merror : "username"};
+            res.write(JSON.stringify(mmsg));
+            res.end();//end of response
+            //la8os username h email
+          }else{
+            if(result[0].password.trim() == mdata.password){
+              console.log(mmsg);
+              res.write(JSON.stringify(mmsg));
+              res.end();//end of response
+            }else{
+              mmsg = {mssg : false, merror : "password"};
+              res.write(JSON.stringify(mmsg));
+              res.end();//end of response
+            }
+          }
+        });//telos query gia info
+      });
+    });//req on end
+  }//end if
+});
+//gia login admin
 
 //vazw visit content
 app.all('/uservisitcontent',function (req, res) {
@@ -982,7 +1228,7 @@ app.all('/userchange',async function (req, res) {
             console.log(result);
           });//telos query gia info
         }//if gia password
-        const grafei = await res.write(JSON.stringify({mssg : 1, message : "egine"}));
+        const grafei = await res.write(JSON.stringify({mssg : 1, message : mdata.username}));
         res.end();//end of response
       });
     });//req on end
@@ -1110,8 +1356,9 @@ app.all('/epafh_me_krousma',async function (req, res) {
 //epafh me krousma
 
 app.use(express.static(path.join(__dirname, '/myhtml')));
+//app.use(express.static(path.join(__dirname, '/myhtml' , {maxAge: '300'})));
 app.get('/', function (request, response) {
-        response.sendFile(path.join(__dirname, '/myhtml'));
+  response.sendFile(path.join(__dirname, '/myhtml'));
 });
 app.listen(8080, function() {
   console.log('Node app is running on port 8080');

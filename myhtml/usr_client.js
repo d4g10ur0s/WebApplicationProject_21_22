@@ -171,8 +171,8 @@ function retPos(pos) {
   var usrname = document.getElementById('exw_username').innerHTML;
   usrname = usrname.split(' ');
   var mmsg = {mssg : [usrname[2], pos.coords.latitude, pos.coords.longitude]};
-  //var mmsg = "";
-  $.ajax({
+  var point_string = "You Are Here !\nPOIs near You : \n";
+  const post_ajax = $.ajax({
     url: 'http://localhost:8080/userloc',
     data: JSON.stringify(mmsg),
     type: 'POST',
@@ -183,7 +183,7 @@ function retPos(pos) {
     success: function (data, stat,xhr) {
       console.log('Success ,got position.');
       dtransfered = JSON.parse(data);//pairnw data se morfh json
-      for(i in dtransfered.tret){
+      for(i in dtransfered.tret){//gia na pairnw oti vrisketai se apostash 20 metrwn
         const episkepseis = document.getElementById('episkepseis');
         // creating the span element, then add a class attribute
         var kappa = dtransfered.tret[i].name.split(' ');//to prwto akronhmio einai to id
@@ -191,7 +191,9 @@ function retPos(pos) {
         btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
         btt.style.marginRight="5px";
         btt.style.width= "25%";
-        btt.innerHTML = dtransfered.tret[i].name; // some text to improve visualization
+        btt.innerHTML = dtransfered.tret[i].name; // to onoma tou merous
+        point_string = point_string + "\n" + dtransfered.tret[i].name;
+        //console.log(point_string);
         btt.addEventListener('click', clickPoint, true);
         btt.myParam = dtransfered.tret[i].name;
         episkepseis.appendChild(btt);
@@ -203,27 +205,30 @@ function retPos(pos) {
       $('#lblResponse').html('Error connecting to the server.');
     }
   });//ajax gia na vazw lat lon
-  map = L.map('map',{minZoom:13.25}).setView([pos.coords.latitude,pos.coords.longitude], 18);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-  pos_center = [pos.coords.latitude, pos.coords.longitude];
-  //var points = [
+  post_ajax.done( function (){
+    map = L.map('map',{minZoom:13.25}).setView([pos.coords.latitude,pos.coords.longitude], 18);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    pos_center = [pos.coords.latitude, pos.coords.longitude];
+    //var points = [
     //  [pos_center[0]+(0.00461 * 5), pos_center[1]] ,[pos_center[0],pos_center[1]+(0.00981*5)] ,
     //  [pos_center[0]-(0.00461 * 5), pos_center[1]] ,[pos_center[0],pos_center[1]-(0.00981*5)]
     //];
     //let polygon = L.polygon(points).addTo(map);
-  let ex = L.circle(pos_center,5000).addTo(map);
+    let ex = L.circle(pos_center,5000).addTo(map);
     //ta parakatw einai gia paradeigma
     //diastaseis shmeiwn mou :
     //38.25424  (0.00461), 21.73744(0.00981) *2.5
     //38.25886, 21.74725
     // apokliseis pos.coords.latitude - 0.00103, pos.coords.longitude - 0.00721
-  L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
-  .bindPopup('You Are Here !')
-  .openPopup();
+    L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map)
+    .bindPopup(point_string)
+    .openPopup();
+  });
 }
 //vazw 8esh se map
+
 
 //an yparksei error
 function showError(error) {
@@ -394,7 +399,7 @@ $('#nav-profile-tab').on('click', function (e) {
   usrname = usrname.split(' ');
   mmsg = {name: usrname[2]};
 
-  post_ajax = $.ajax({
+  const post_ajax = $.ajax({
     url: 'http://localhost:8080/uservisitcontent',
     data: JSON.stringify(mmsg),
     type: 'POST',
@@ -516,7 +521,19 @@ $('#new_username').on('click',async function (e) {
         console.log('success' + data);
         data = JSON.parse(data);
         if(data.mssg){
-          console.log("done");
+          //allazw onoma se katw meros an allakse to username
+          if(data.message.length > 0){
+            var kappa = JSON.parse(localStorage.getItem("storageName"));//to prwto akronhmio einai to id
+            kappa.username = data.message;
+            localStorage.setItem("storageName",JSON.stringify(kappa));
+            var usrname = document.getElementById('exw_username').innerHTML;
+            usrname = usrname.split(' ');
+            usrname[2] = data.message;
+            var btt  = document.getElementById('exw_username');
+            btt.innerHTML =  "Username : "+usrname[2] + " E-mail : " + usrname[5] ; // some text to improve visualization
+            //window.location.reload();
+          }
+          alert("Η επιτυχής αλλαγή στοιχείων.");
         }else{
           console.log(data.error)
           if(data.merror == "password"){

@@ -17,10 +17,18 @@ function email_correct(){
   console.log(p.includes(".com"));
   if (p.search(/[@]/) > 0 && p.includes(".com")) {
     return true;
-  }else{
-    errors.push("Your email is wrong.");
+  }else if (p.length < 2) {
+
+    errors.push("Προσπάθεια σύνδεσης ως admin.");
     alert(errors.join("\n"));
     return false;
+
+  }else{
+
+    errors.push("Incorrect email.");
+    alert(errors.join("\n"));
+    return false;
+
   }
 }
 
@@ -49,40 +57,75 @@ function password_correct() {
 }
 
 function loginOnClick() {
-    if (password_correct() && username_correct() && email_correct()) {
-      mmsg = {
-        username : document.getElementById("usernameInput").value,
-        password : document.getElementById("passwordInput").value,
-        email : document.getElementById("emailInput").value
-      };
-      $.ajax({
-        url: 'http://localhost:8080/userlogin',
-        data: JSON.stringify(mmsg),
-        type: 'POST',
-        processData: false,
-        headers: {
-           "Access-Control-Allow-Origin" : "*"
-       },
-        success: function (data, stat,xhr) {
-          console.log('success' + data);
-          data = JSON.parse(data);
-          if(data.mssg){
-            localStorage.setItem("storageName",JSON.stringify(mmsg));
-            document.location.href = "userpage.html";
-          }else{
-            console.log(data.error)
-            if(data.merror == "password"){
-              alert("Λάθος password.");
+    if (password_correct() && username_correct() ) {
+      if(email_correct()){//gia user
+        mmsg = {
+          username : document.getElementById("usernameInput").value,
+          password : document.getElementById("passwordInput").value,
+          email : document.getElementById("emailInput").value
+        };
+        $.ajax({
+          url: 'http://localhost:8080/userlogin',
+          data: JSON.stringify(mmsg),
+          type: 'POST',
+          processData: false,
+          headers: {
+            "Access-Control-Allow-Origin" : "*"
+          },
+          success: function (data, stat,xhr) {
+            console.log('success' + data);
+            data = JSON.parse(data);
+            if(data.mssg){
+              localStorage.setItem("storageName",JSON.stringify(mmsg));
+              document.location.href = "userpage.html";
             }else{
-              alert("Λάθος username η e-mail.\nΉ νέα εγγραφή.");
+              console.log(data.error)
+              if(data.merror == "password"){
+                alert("Λάθος password.");
+              }else{
+                alert("Λάθος username ή e-mail.\nΉ νέα εγγραφή.");
+              }
             }
+          },
+          error: function (xhr, ajax, err) {
+            console.error('error: ' + JSON.stringify(xhr));
+            console.error(JSON.stringify(err));
           }
-        },
-        error: function (xhr, ajax, err) {
-          console.error('error: ' + JSON.stringify(xhr));
-          console.error(JSON.stringify(err));
-        }
-      });//end ajax post
+        });//end ajax post
+      }//gia ton user
+      else{
+        mmsg = {
+          username : document.getElementById("usernameInput").value,
+          password : document.getElementById("passwordInput").value
+        };
+        $.ajax({
+          url: 'http://localhost:8080/adminlogin',
+          data: JSON.stringify(mmsg),
+          type: 'POST',
+          processData: false,
+          headers: {
+            "Access-Control-Allow-Origin" : "*"
+          },
+          success: function (data, stat,xhr) {
+            console.log('success' + data);
+            data = JSON.parse(data);
+            if(data.mssg){
+              document.location.href = "adminpage.html";
+            }else{
+              console.log(data.error)
+              if(data.merror == "password"){
+                alert("Λάθος password.");
+              }else{
+                alert("Λάθος username admin.");
+              }
+            }
+          },
+          error: function (xhr, ajax, err) {
+            console.error('error: ' + JSON.stringify(xhr));
+            console.error(JSON.stringify(err));
+          }
+        });//end ajax post
+      }
       //ayto prepei na phgainei eite se admin eite se user
     }//endif
 }

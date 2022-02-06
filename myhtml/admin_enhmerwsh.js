@@ -20,7 +20,7 @@ if (mfile) {
         a = JSON.parse(a);
         //ola einai se array gia auto den ginontai swsta extract oute stelnontai swsta
         const post_ajax = $.ajax({
-          url: 'http://localhost:8080/adminload',
+          url: 'http://localhost:8080/admin_enhmerwsh',
           timeout:6000 ,//3 second timeout
           //contentType: 'application/json',
           data: JSON.stringify(a),
