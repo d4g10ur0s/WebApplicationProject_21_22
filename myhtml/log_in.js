@@ -14,7 +14,6 @@ function username_correct(){
 
 function email_correct(){
   var p = document.getElementById("emailInput").value,errors = [];
-  console.log(p.includes(".com"));
   if (p.search(/[@]/) > 0 && p.includes(".com")) {
     return true;
   }else if (p.length < 2) {
@@ -73,13 +72,11 @@ function loginOnClick() {
             "Access-Control-Allow-Origin" : "*"
           },
           success: function (data, stat,xhr) {
-            console.log('success' + data);
             data = JSON.parse(data);
             if(data.mssg){
               localStorage.setItem("storageName",JSON.stringify(mmsg));
               document.location.href = "userpage.html";
             }else{
-              console.log(data.error)
               if(data.merror == "password"){
                 alert("Λάθος password.");
               }else{
@@ -107,12 +104,10 @@ function loginOnClick() {
             "Access-Control-Allow-Origin" : "*"
           },
           success: function (data, stat,xhr) {
-            console.log('success' + data);
             data = JSON.parse(data);
             if(data.mssg){
               document.location.href = "adminpage.html";
             }else{
-              console.log(data.error)
               if(data.merror == "password"){
                 alert("Λάθος password.");
               }else{
@@ -145,18 +140,12 @@ function registerOnClick() {
            "Access-Control-Allow-Origin" : "*"
        },
         success: function (data, stat,xhr) {
-          console.log('success' + data);
           data = JSON.parse(data);
           if(data.mssg){
             localStorage.setItem("storageName",JSON.stringify(mmsg));
             document.location.href = "userpage.html";
           }else{
-            console.log(data.error)
-            if(data.merror == "password"){
-              alert("Λάθος password.");
-            }else{
-              alert("Λάθος username η e-mail.");
-            }
+            alert("Ο χρήστης υπάρχει.");
           }
         },
         error: function (xhr, ajax, err) {

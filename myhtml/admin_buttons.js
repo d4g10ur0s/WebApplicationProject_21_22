@@ -2,7 +2,6 @@ function setup_buttons() {
   document.getElementById('upfile').disabled = true;
   document.getElementById('eisagwgh').addEventListener("click", upl_enable_files);
   document.getElementById('enhmerwsh').addEventListener("click", upd_enable_files);
-
 }
 
 function upl_enable_files(){
@@ -92,6 +91,11 @@ $('#nav-profile-tab').on('click', function (e) {
     }
   });//ajax gia na pairnw info gia visits
   post_ajax.done( function (){
+    $('#total_krousma_on td').remove();
+    $('#total_krousma td').remove();
+    $('#total_visits td').remove();
+    $('#katataksh td').remove();
+
     $("<tr><td>"  +  mvisits[0].c + "</td></tr>").appendTo("#total_visits");
     $("<tr><td>" +mkrousma[0].c + "</td></tr>").appendTo("#total_krousma");
     $("<tr><td>" +monkrousma + "</td></tr>").appendTo("#total_krousma_on");

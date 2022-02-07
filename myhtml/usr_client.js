@@ -181,7 +181,6 @@ function retPos(pos) {
       "Access-Control-Allow-Origin" : "*"
     },
     success: function (data, stat,xhr) {
-      console.log('Success ,got position.');
       dtransfered = JSON.parse(data);//pairnw data se morfh json
       for(i in dtransfered.tret){//gia na pairnw oti vrisketai se apostash 20 metrwn
         const episkepseis = document.getElementById('episkepseis');
@@ -271,9 +270,8 @@ $('#krousmaform').submit(function (e) {
         "Access-Control-Allow-Origin" : "*"
       },
       success: function (data, stat,xhr) {
-        console.log('Success: ' + data);
         dtransfered = JSON.parse(data);//pairnw data se morfh json
-        alert(dtransfered.msg);
+        alert(dtransfered.msg);//eite egine eite exeis hdh dhlw8ei
       },
       error: function (xhr, status, error) {
         console.log('Error: ' + error.message);
@@ -286,7 +284,9 @@ $('#krousmaform').submit(function (e) {
 
 //se poio point eimai
 function clickPoint(ev){
-  console.log(ev.currentTarget.myParam);
+  var today = new Date();
+  var date = today.getFullYear()+'-'+ConvertNumberToTwoDigitString(today.getMonth()+1)+'-'+ConvertNumberToTwoDigitString(today.getDate());
+  var time = ConvertNumberToTwoDigitString(today.getHours()) + ":" + ConvertNumberToTwoDigitString(today.getMinutes());
   var usrname = document.getElementById('exw_username').innerHTML;
   usrname = usrname.split(' ');
   var mmsg = {msg : [usrname[2], ev.currentTarget.myParam]};
@@ -299,47 +299,40 @@ function clickPoint(ev){
       "Access-Control-Allow-Origin" : "*"
     },
     success: function (data, stat,xhr) {
-      console.log('Success: ' + data);
-      dtransfered = JSON.parse(data);//pairnw data se morfh json
-      console.log(dtransfered);
+      alert("Η Επίσκεψη καταχωρήθηκε.");
+      const myNode = document.getElementById("episkepseis");
+      while (myNode.firstChild) {
+        myNode.removeChild(myNode.lastChild);
+      }//vgazw ola ta merh pou mporei na eimai
+      // koumpi gia ektimhsh
+      const btt = document.createElement("ektimish");
+      btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
+      btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
+      btt.style.marginRight="5px";
+      btt.myParam = date+ ' ' + time;//etsi mporw na anagnwrisw to visit entos ths vashs(username ke timestamp)
+      btt.addEventListener('click', clickEktimish, true);
+      //btt.addEventListener('click', clickPoint, true);
+      //input ektimhshs
+      const inp = document.createElement("input");
+      inp.setAttribute('type',"text");//gia input
+      inp.setAttribute('id',"ektimhsh_input");//gia input
+      inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
+      inp.style.width = '50px';
+      inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
+      //ta vazw
+      myNode.appendChild(btt);
+      myNode.appendChild(inp);
     },
     error: function (xhr, status, error) {
       console.log('Error: ' + error.message);
       $('#lblResponse').html('Error connecting to the server.');
     }
   });//ajax gia na vazw pou eimai
-  const myNode = document.getElementById("episkepseis");
-  while (myNode.firstChild) {
-    myNode.removeChild(myNode.lastChild);
-  }//vgazw ola ta merh pou mporei na eimai
-  // koumpi gia ektimhsh
-  const btt = document.createElement("ektimish");
-  btt.setAttribute('class','btn btn-light col-md-4');//ti eidous button
-  btt.innerHTML = 'Εκτίμηση'; // some text to improve visualization
-  btt.style.marginRight="5px";
-  var today = new Date();
-  console.log("ginetai");
-  var date = today.getFullYear()+'-'+ConvertNumberToTwoDigitString(today.getMonth()+1)+'-'+ConvertNumberToTwoDigitString(today.getDate());
-  var time = ConvertNumberToTwoDigitString(today.getHours()) + ":" + ConvertNumberToTwoDigitString(today.getMinutes());
-  btt.myParam = date+ ' ' + time;//etsi mporw na anagnwrisw to visit entos ths vashs(username ke timestamp)
-  btt.addEventListener('click', clickEktimish, true);
-  //btt.addEventListener('click', clickPoint, true);
-  //input ektimhshs
-  const inp = document.createElement("input");
-  inp.setAttribute('type',"text");//gia input
-  inp.setAttribute('id',"ektimhsh_input");//gia input
-  inp.setAttribute('class','form-control col-md-4 input');//ti eidous input
-  inp.style.width = '50px';
-  inp.setAttribute('placeholder','Εκτίμηση');//ti eidous input
-  //ta vazw
-  myNode.appendChild(btt);
-  myNode.appendChild(inp);
 }
 //se poio point eimai
 
 //ektimhsh apo user
 function clickEktimish(ev){
-  console.log(ev.currentTarget.myParam);
   if( isNaN( parseInt(document.getElementById("ektimhsh_input").value) )){//an den einai int mhn synexeis
     alert("Η Εκτίμηση είναι ακέραιος αριθμός.");
   }else{
@@ -355,9 +348,7 @@ function clickEktimish(ev){
         "Access-Control-Allow-Origin" : "*"
       },
       success: function (data, stat,xhr) {
-        console.log('Success: ' + data);
-        dtransfered = JSON.parse(data);//pairnw data se morfh json
-        console.log(dtransfered);
+        alert("Η εκτίμηση καταχωρήθηκε.");
       },
       error: function (xhr, status, error) {
         console.log('Error: ' + error.message);
@@ -378,8 +369,6 @@ function ConvertNumberToTwoDigitString(n) {
 
 //to storage me info gia user
 $( document).ready(function() {
-  console.log( "ready!" );
-  alert(localStorage.getItem("storageName"));
   const usinfo = document.getElementById('user_info');
   // creating the span element, then add a class attribute
   var kappa = JSON.parse(localStorage.getItem("storageName"));//to prwto akronhmio einai to id
@@ -395,7 +384,6 @@ $('#nav-profile-tab').on('click', function (e) {
   var mvisits , mkrousma;
   e.preventDefault();
   var usrname = document.getElementById('exw_username').innerHTML;
-  console.log(usrname[2]);
   usrname = usrname.split(' ');
   mmsg = {name: usrname[2]};
 
@@ -408,9 +396,7 @@ $('#nav-profile-tab').on('click', function (e) {
       "Access-Control-Allow-Origin" : "*"
     },
     success: function (data, stat,xhr) {
-      console.log('Success: ' + data);
       dtransfered = JSON.parse(data);//pairnw data se morfh json
-      console.log(dtransfered);
       mvisits = dtransfered.message1;
       mkrousma = dtransfered.message2;
     },
@@ -420,17 +406,13 @@ $('#nav-profile-tab').on('click', function (e) {
     }
   });//ajax gia na pairnw info gia visits
   post_ajax.done( function (){
-    $('#myvisits tr').remove();
-    $('#mykrousma tr').remove();
+    $('#myvisits td').remove();
+    $('#mykrousma td').remove();
 
     for(i in mvisits){
-      console.log(new Date(mvisits[i].tm).toISOString().replace("T", " ").slice(0, 19));
-      console.log("edw");
       $("<tr><td>" + i + "</td><td>" +  mvisits[i].pname + "</td><td>" +  mvisits[i].num_of_people + "</td><td>" + new Date(mvisits[i].tm).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#myvisits");
     }
     for(i in mkrousma){
-      console.log(new Date(mkrousma[i].pote).toISOString().replace("T", " ").slice(0, 19));
-      console.log("edw");
       $("<tr><td>" + i + "</td><td>" +  mkrousma[i].username + "</td><td>" + new Date(mkrousma[i].pote).toISOString().replace("T", " ").slice(0, 19)+ "</td></tr>").appendTo("#mykrousma");
     }
   });
@@ -498,17 +480,16 @@ $('#new_username').on('click',async function (e) {
   };
   var steile = false;
   //gia username
-  if (username_corr() || document.getElementById("username").value.length==0) {
+  if (username_corr() || !(document.getElementById("password").value.length==0)) {
     mmsg.username = document.getElementById("username").value;
     steile = true;
   }//endif
   //gia password
-  if (password_corr() || document.getElementById("password").value.length==0) {
+  if (password_corr() || !(document.getElementById("username").value.length==0)) {
     mmsg.password=document.getElementById("password").value;
     steile=true;
   }
   if(steile){
-    console.log(mmsg);
     $.ajax({
       url: 'http://localhost:8080/userchange',
       data: JSON.stringify(mmsg),
@@ -518,7 +499,6 @@ $('#new_username').on('click',async function (e) {
         "Access-Control-Allow-Origin" : "*"
       },
       success: function (data, stat,xhr) {
-        console.log('success' + data);
         data = JSON.parse(data);
         if(data.mssg){
           //allazw onoma se katw meros an allakse to username
@@ -532,6 +512,7 @@ $('#new_username').on('click',async function (e) {
             var btt  = document.getElementById('exw_username');
             btt.innerHTML =  "Username : "+usrname[2] + " E-mail : " + usrname[5] ; // some text to improve visualization
             //window.location.reload();
+            document.getElementById("nav-profile-tab").click();//kaleitai grammh 382
           }
           alert("Η επιτυχής αλλαγή στοιχείων.");
         }else{
@@ -548,7 +529,7 @@ $('#new_username').on('click',async function (e) {
         console.error(JSON.stringify(err));
       }
     });//end ajax
-    steile = false;//8a to checkarw meta
+    //steile = false;//8a to checkarw meta
   }
 });
 //gia allagh info
@@ -559,7 +540,6 @@ $('#krousma_contact_button').on('click',async function (e) {
   var usrname = document.getElementById('exw_username').innerHTML;
   usrname = usrname.split(' ');
   var mmsg = { username : usrname[2] };
-  console.log(mmsg);
   $.ajax({
     url: 'http://localhost:8080/epafh_me_krousma',
     data: JSON.stringify(mmsg),
@@ -569,11 +549,20 @@ $('#krousma_contact_button').on('click',async function (e) {
       "Access-Control-Allow-Origin" : "*"
     },
     success: function (data, stat,xhr) {
-      console.log('success' + data);
       data = JSON.parse(data);
+      $('#lista_me_epafh li').remove();
       alert("Επαφές με κρούσμα.");
+      ul = document.createElement('ul');
+      ul.setAttribute("class","list-group");
+      ul.setAttribute("id","lista_me_epafh");
+
+      document.getElementById('epafh_me_krousma_lista').appendChild(ul);
       for(i in data.message){
-        alert("Ημερομηνία : "+ data.message[i].tm.slice(0, 10) + " " + data.message[i].tm.slice(12, 19)+"\nΜέρος : "+data.message[i].pname);
+        let li = document.createElement('li');
+        li.setAttribute("class","list-group-item");
+        li.innerHTML += "Ημερομηνία : "+ data.message[i].tm.slice(0, 10) + " " + data.message[i].tm.slice(11, 19)+"\nΜέρος : "+data.message[i].pname;
+        ul.appendChild(li);
+        alert("Ημερομηνία : "+ data.message[i].tm.slice(0, 10) + " " + data.message[i].tm.slice(11, 19)+"\nΜέρος : "+data.message[i].pname);
       }
     },
     error: function (xhr, ajax, err) {
