@@ -30,7 +30,6 @@ if (mfile) {
             console.log('Success: ');
           },
           success: function (data, stat,xhr) {
-            console.log('Success: ' + data);
             dtransfered = JSON.parse(data);//pairnw data se morfh json
             alert(dtransfered.msg);
             document.getElementById('upfile').disabled = true;

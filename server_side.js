@@ -48,7 +48,7 @@ app.use(cors({
 }));
 //o admin diagrafei info
 app.all('/admindelete',async function (req, res) {
-  var meres = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var meres = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
   console.log('Request received: ');
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
@@ -74,52 +74,48 @@ app.all('/admindelete',async function (req, res) {
         multipleStatements: true
       });
       //shndesh me vash
-      con.connect(function(err) {
+      con.connect(async function(err) {
+        const query = util.promisify(con.query).bind(con);//g9ia na exw promises
+
         for(i in meres){
-          console.log(meres[i]);
-          var mquery = "DELETE FROM "+meres[i]+" WHERE id like \'%%\';";
-          con.query(mquery, function (err, result, fields) {
-            if (err){
-              throw err;
-            }
-            console.log(result);
-          });//telos query gia delete
+          await query("DELETE FROM "+meres[i]+" WHERE id like \'%%\';");
         }
-        var mquery = "DELETE FROM point_of_interest WHERE name like \'%%\';";
-        con.query(mquery, function (err, result, fields) {
-          if (err){
-            //throw err;
-          }
-        });//telos query gia delete
-        con.query("SELECT table_name FROM information_schema.tables WHERE table_schema = \'projectweb\'", function(err, tables){
-          for(i in tables){//gia ka8e onoma trapeziou
-            console.log(tables[i].TABLE_NAME);
-            if(tables[i].TABLE_NAME=='user' || tables[i].TABLE_NAME == 'visit' || tables[i].TABLE_NAME == 'krousma'){//gia user
-              var mquery = "DELETE FROM "+tables[i].TABLE_NAME+" WHERE username like \'%%\';";
-              con.query(mquery, function (err, result, fields) {
-                if (err){
-                  //throw err;
-                }
-              });//telos query gia delete
-            }else if(!(tables[i].TABLE_NAME=='admin' && tables[i].TABLE_NAME in meres && tables[i].TABLE_NAME == 'point_of_interest') ){//gia akura tables
-              var mquery = "DELETE FROM "+tables[i].TABLE_NAME+" WHERE pointid like \'%%\';";
-              con.query(mquery, function (err, result, fields) {
-                if (err){
-                  //throw err;
-                }
-              });//telos query gia delete
-            }//den diagrafetai o admin
-          }//end for
-        });//gia na parw onoma
+
+        await query("DELETE FROM point_of_interest WHERE name like \'%%\';");
+        tables = await query("SELECT table_name FROM information_schema.tables WHERE table_schema = \'projectweb\'");//pairnw ola ta tables
+
+        for(i in tables){//gia ka8e onoma trapeziou
+          if( !(tables[i].TABLE_NAME=='admin') && (tables[i].TABLE_NAME=='user' || tables[i].TABLE_NAME == 'visit' || tables[i].TABLE_NAME == 'krousma')){//gia user
+            await query("DELETE FROM "+tables[i].TABLE_NAME+" WHERE username like \'%%\';");
+          }else if(!(tables[i].TABLE_NAME=='admin' || await is_in(tables[i].TABLE_NAME) || tables[i].TABLE_NAME == 'point_of_interest') ){//gia akura tables
+            await query("DELETE FROM "+tables[i].TABLE_NAME+" WHERE pointid like \'%%\';");
+          }//den diagrafetai o admin
+          else if( await is_in(tables[i].TABLE_NAME) ){//gia meres
+            await query("DELETE FROM "+tables[i].TABLE_NAME+" WHERE id like \'%%\';");
+          }//den diagrafetai o admin
+
+        }//end for
+
       });//telos sundeshs
+
     });//req on end
-    res.end();
+    await res.write(JSON.stringify({message : "Επιτυχής Διαγραφή."}))
+    await res.end();
   }
 });
+//gia na vlepw an string einai mesa se array
+async function is_in(mystr){
+  var meres = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  var alh8eia = false;
+  for(i in meres){
+    if(meres[i] == mystr){alh8eia = true;}
+  }
+  return alh8eia;
+}
 
 //o admin vazei info
-var admin_message = {msg : "Έγινε."};
 app.all('/adminload',async function (req, res) {
+  var admin_message = {msg : "Έγινε."};
   console.log('Request received: ');
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
@@ -159,7 +155,6 @@ app.all('/adminload',async function (req, res) {
         //lista gia types
         var mtypes = {};
         for(k in mdata){
-          console.log(mdata[k]);
 
           //gia na vazw hmeres
           for(j in mdata[k].populartimes){
@@ -188,57 +183,50 @@ app.all('/adminload',async function (req, res) {
           }
           busert.push([mdata[k].id,mdata[k].name,mdata[k].address,mdata[k].coordinates.lat,mdata[k].coordinates.lng,mdata[k].rating,mdata[k].rating_n]);
         }//end for proetoimasias
-        const connection_ended = await con.connect(async function(err) {
-
+        await con.connect(async function(err) {
           //vazw point of interest info (id name address lat lon rating rating_n)
-          //mdata[...]...
-          //const query = util.promisify(con.query).bind(con);
+          const query = util.promisify(con.query).bind(con);
           var sunexeia = true;
           var mquery = "INSERT INTO point_of_interest(id,name,address,lat,lon,rating,rating_n) VALUES ?";
 
-          const dup_error = await con.query(mquery,[busert], async function (err, result, fields) {
+          await query(mquery,[busert], async function (err, result, fields) {
             if (err){
               admin_message = {msg : "Υπάρχει ήδη.\nΠήγαινε Ενημέρωση"};
               sunexeia = false;
             }
-            //throw err;
-            if(sunexeia){
-              admin_message = {msg : "Έγινε."};
-              console.log(sunexeia);
-              //vazw ka8e eidos
-              for(tp in mtypes){
-                con.query("create table if not exists "+tp+"(pointid varchar(30));", function (err, result, fields) {
-                  if (err){
-                    //throw err;
-                  }
-                });//telos query_1
-                //vazw to sxetiko id
-                var tload = mtypes[tp];
-                var mquery = "INSERT INTO "+tp+"(pointid) VALUES ?";
-                con.query(mquery,[tload] ,function (err, result, fields) {
-                  if (err){
-                    //throw err;
-                  }
-                });//telos query_2
-              }//endfor
-              // vazw ka8e eidos
-              //vazw se hmeres
-              for(d in mdayz){
-                console.log("den mphke");
-                var mquery = "INSERT INTO "+d+"(id,i,ii,iii,iv,v,vi,vii,viii,ix,x,xi,xii,xiii,xiv,xv,xvi,xvii,xviii,xix,xx,xxi,xxii,xxiii,xxiv) VALUES ?";
-                con.query(mquery,[mdayz[d]], function (err, result, fields) {
-                  if (err){
-                    //throw err;
-                  }
-                });//telos query gia mia hmera
-              }//vazw hmeres
-            }//endifsunexeia
-            res.write(JSON.stringify(admin_message));
-            return res.end();//telos sundeshs
-          });//telos query gia info
-        });//telos connect
-      });
-    }
+          //throw err;
+          if(sunexeia){
+            admin_message = {msg : "Έγινε."};
+            //vazw ka8e eidos
+            for(tp in mtypes){
+              con.query("create table if not exists "+tp+"(pointid varchar(30));", function (err, result, fields) {
+                if(err){}
+                //to error mu to exei petaksei hdh an einai
+              });//telos query_1
+              //vazw to sxetiko id
+              var tload = mtypes[tp];
+              var mquery = "INSERT INTO "+tp+"(pointid) VALUES ?";
+              con.query(mquery,[tload] ,function (err, result, fields) {
+                if(err){}
+                //to error mu to exei petaksei hdh an einai
+              });//telos query_2
+            }//endfor
+            // vazw ka8e eidos
+            //vazw se hmeres
+            for(d in mdayz){
+              var mquery = "INSERT INTO "+d+"(id,i,ii,iii,iv,v,vi,vii,viii,ix,x,xi,xii,xiii,xiv,xv,xvi,xvii,xviii,xix,xx,xxi,xxii,xxiii,xxiv) VALUES ?";
+              con.query(mquery,[mdayz[d]], function (err, result, fields) {
+                if(err){}
+                //to error mu to exei petaksei hdh an einai
+              });//telos query gia mia hmera
+            }//vazw hmeres
+          }//endifsunexeia
+          res.write(JSON.stringify(admin_message));
+          res.end();//telos sundeshs
+        });//telos query gia info
+      });//telos connect
+    });
+  }
 });
 //o admin vazei pragmata
 
