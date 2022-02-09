@@ -61,7 +61,6 @@ $('#sform').submit(function (e) {
   var val = document.getElementById("usrsearch").value;
   if(val){//an yparxei timh entos tu search bar
     var mmsg = {message : val};
-    console.log(mmsg.message);//emfoliasmos ?
     const post_ajax = $.ajax({
       url: 'http://localhost:8080/usrpointers',
       data: JSON.stringify(mmsg),//to kanw stringify
@@ -72,7 +71,6 @@ $('#sform').submit(function (e) {
         "Access-Control-Allow-Origin" : "*"
       },
       success: function (data, stat,xhr) {
-        console.log('Success: ' + data);
         dtransfered = JSON.parse(data);//pairnw data se morfh json
         usrestimation = dtransfered.message2;
         ine = dtransfered.message5;
@@ -85,7 +83,7 @@ $('#sform').submit(function (e) {
     });//prwto ajax
     //meta to prwto ajax
     post_ajax.done(function (){
-      console.log(ine);
+      var user_estimation_strings = [];
       if(!ine){
         done = false;
         alert(dtransfered);
@@ -99,63 +97,74 @@ $('#sform').submit(function (e) {
           for(d in dtransfered){
             latlng_b = new L.LatLng(dtransfered[d].lat ,dtransfered[d].lon);
             // if ( (latlng_a.distanceTo(latlng_b)/1000).toFixed(0) < 5000) {
-              inRange.push(dtransfered[d]);
-              // }
+            inRange.push(dtransfered[d]);
+            // } //edw otan 8a trexei to kanoniko programma
+          }
+          dtransfered = inRange;
+          for(d in dtransfered){
+            //console.log(dtransfered[d].i);
+            var b = [dtransfered[d].i,dtransfered[d].ii,dtransfered[d].iii
+            ,dtransfered[d].iv,dtransfered[d].v,dtransfered[d].vi,
+            dtransfered[d].vii,dtransfered[d].viii,dtransfered[d].ix,
+            dtransfered[d].x,dtransfered[d].xi,
+            dtransfered[d].xii,dtransfered[d].xiii,dtransfered[d].xiv,
+            dtransfered[d].xv,dtransfered[d].xvi,dtransfered[d].xvii,
+            dtransfered[d].xviii,dtransfered[d].xix,dtransfered[d].xx,
+            dtransfered[d].xxi,dtransfered[d].xxii,dtransfered[d].xxiii,dtransfered[d].xxiv];
+            //pairnw sum
+            var sum = 0;
+            for(i in b){
+              sum+=parseInt(i);
             }
-            dtransfered = inRange;
-            console.log("egine");
-            for(d in dtransfered){
-              //console.log(dtransfered[d].i);
-              var b = [dtransfered[d].i,dtransfered[d].ii,dtransfered[d].iii
-              ,dtransfered[d].iv,dtransfered[d].v,dtransfered[d].vi,
-              dtransfered[d].vii,dtransfered[d].viii,dtransfered[d].ix,
-              dtransfered[d].x,dtransfered[d].xi,
-              dtransfered[d].xii,dtransfered[d].xiii,dtransfered[d].xiv,
-              dtransfered[d].xv,dtransfered[d].xvi,dtransfered[d].xvii,
-              dtransfered[d].xviii,dtransfered[d].xix,dtransfered[d].xx,
-              dtransfered[d].xxi,dtransfered[d].xxii,dtransfered[d].xxiii,dtransfered[d].xxiv];
-              //pairnw sum
-              var sum = 0;
-              for(i in b){
-                sum+=parseInt(i);
-              }
-              //console.log(sum);
-              sum =( parseInt(b[hour-1])/sum )*100;//gia na vgalw xrwma
-              var hour = new Date().getHours();
-              //console.log(sum);
-              var marker;
-              if(sum > 66){
-                marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: redIcon}).addTo(map)
-                .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) +"\n User Estimation : " + usrestimation )
-                .openPopup();
-              }else if (sum > 65) {
-                marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: orangeIcon}).addTo(map)
-                .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2 )+"\n User Estimation : " + usrestimation )
-                .openPopup();
-              }else {
-                marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: greenIcon}).addTo(map)
-                .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2)+"\n User Estimation : " + usrestimation )
-                .openPopup();
+            //console.log(sum);
+            sum =( parseInt(b[hour-1])/sum )*100;//gia na vgalw xrwma
+            var hour = new Date().getHours();
+            //console.log(sum);
+            var marker;
+            //prepei na parw mo ke wra apo userestimation
+            let temp_estimation_string = "";
+            for(est in usrestimation){
+              let to_kleidi = Object.keys(usrestimation[est]);//pairnw ola ta kleidia th 8eshs,einai mono 1.
+              if(to_kleidi == dtransfered[d].name){
+                to_kleidi = usrestimation[est][to_kleidi];
+                temp_estimation_string = temp_estimation_string + " Ώρα : " + to_kleidi[1] + " Μέσος Όρος Εκτίμησης : " + to_kleidi[0] + " \n ";
               }
             }
-          });
-          //topo8ethsh se selida
-          $.ajax({
-            async: false,
-            url: this.href,
-            success: function (result) {
-              console.log('success');
-            },
-            error: function (xhr, ajax, err) {
-              console.error('error: ' + JSON.stringify(xhr));
-              console.error(JSON.stringify(err));
+            if(temp_estimation_string.length > 0){
+            }else{//vale 0
+              temp_estimation_string = " Μέσος Όρος Εκτίμησης : Δεν Υπάρχουν Εκτιμήσεις. \n ";
             }
-          });
-        }//mono an phra pisw apadhsh
-      });//post_ajax
-    }//end if
-    return false;
-  });
+            user_estimation_strings.push(temp_estimation_string);
+
+            if(sum > 66){
+              marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: redIcon}).addTo(map)
+              .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2) +"\n" + user_estimation_strings[d] )
+              .openPopup();
+            }else if (sum > 65) {
+              marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: orangeIcon}).addTo(map)
+              .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2 )+"\n" + user_estimation_strings[d] )
+              .openPopup();
+            }else {
+              marker = L.marker([dtransfered[d].lat,dtransfered[d].lon], {icon: greenIcon}).addTo(map)
+              .bindPopup(dtransfered[d].name+'\n'+dtransfered[d].address+'\n'+"Estimation : "+b[hour-1]+"\nhour : "+hour+"\nEstimation : "+b[hour]+"\nhour : "+(parseInt(hour)+1)+"\nEstimation : "+b[hour+1]+"\nhour : "+(parseInt(hour)+2)+"\n" + user_estimation_strings[d] )
+              .openPopup();
+            }
+          }
+        });
+        //topo8ethsh se selida
+        $.ajax({
+          async: false,
+          url: this.href,
+          error: function (xhr, ajax, err) {
+            console.error('error: ' + JSON.stringify(xhr));
+            console.error(JSON.stringify(err));
+          }
+        });
+      }//mono an phra pisw apadhsh
+    });//post_ajax
+  }//end if
+  return false;//gia na mhn kanei refrsh tn selida
+});
 //gia na vazw point_of_interest
 
 //vriskw topo8esia

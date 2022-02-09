@@ -513,22 +513,24 @@ app.all('/admin_count',async function (req, res) {
   }//end if
 });
 //o admin vlepei panw statistika
+
 //gia na vazw pointers se map
 app.all('/usrpointers',async function (req, res) {
-
   var mymessage = {message1 : [],message2 : [],message3: [],message4 : [],message5 :""};
-  done = false;
+
   util.inspect(req) // this line helps you inspect the request so you can see whether the data is in the url (GET) or the req body (POST)
   util.log('Request recieved: \nmethod: ' + req.method + '\nurl: ' + req.url) // this line logs just the method and url
+  console.log(req.url);
+
   var info = "";
   var body = [];
+
   if(req.method==='OPTIONS'){
           res.writeHead(200);
           res.end();
   }else if(req.method==='POST'){//gia post
     //diavazw data
     req.on("data", (chunk) => {
-      console.log(chunk);
       body.push(chunk);
     });
     //otan exeis diavasei olo to data
@@ -538,7 +540,7 @@ app.all('/usrpointers',async function (req, res) {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin' : '*',
         'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE'
-        //"Keep-Alive" : "timeout=80"
+        ,"Keep-Alive" : "timeout=80"
       });
       //dhmiourgia sundeshs
       const con = mysql.createConnection({
@@ -548,81 +550,62 @@ app.all('/usrpointers',async function (req, res) {
         database: "projectweb",
         multipleStatements: true
       });
-      console.log(req.url);
+
       info = Buffer.concat(body).toString();
       info = JSON.parse(info);//parsing json
       info = info.message;
-      body = info;//exw thn plhroforia se body
       //sundeh me vash
       con.connect(async function(err) {
+        const query = util.promisify(con.query).bind(con);//g9ia na exw promises
         console.log("Connected");
-        var mquery = "select point_of_interest.name,t2.*,point_of_interest.address,point_of_interest.lon,point_of_interest.lat,point_of_interest.rating,point_of_interest.rating_n from point_of_interest inner join ((select (pointid) from "+ body+") as t1 inner join (select * from "+td()+") as t2 on t2.id=t1.pointid )on t1.pointid=point_of_interest.id";
-        await con.query(mquery,async function (err, result, fields) {
+        try{
+          var mymo = [];
+          var mquery = "select point_of_interest.name,t2.*,point_of_interest.address,point_of_interest.lon,point_of_interest.lat,point_of_interest.rating,point_of_interest.rating_n from point_of_interest inner join ((select (pointid) from "+ info+") as t1 inner join (select * from "+td()+") as t2 on t2.id=t1.pointid )on t1.pointid=point_of_interest.id;";
+          var result = await query(mquery);
+          mymessage.message1 = JSON.stringify(result);
+          //gia ka8e ena mesa sta apotelesmata 8a prepei na parw thn ektimhsh ke na ftiaksw m.o.
+          for (let i = 0; i <= 2; i++) {//gia ka8e wra
+            var today = new Date();
+            var time = ConvertNumberToTwoDigitString(today.getHours()-i);
+
+            for(j in result){//pairnw timh gia ka8e ena mesa se result
+              body = [];
+              var mquery = "select num_of_people from visit where ekt=1 and tm like \'%"+ time +":%\' and pname like \'%"+result[j].name+"%\';";
+              info = await query(mquery);
+              if(info.length > 0){
+                for(k in info){//pairnw tis ektimhseis ENOS merous gia sugkekrimenh WRA
+                  body.push(parseInt(info[k].num_of_people));
+                }
+                //dhmiourgia mesou orou gia  ENA meros gia sugkekrimenh WRA
+                var sm = 0;
+                for(k in body){sm = sm + body[k];}
+                let temp_name = {};//        mo             wra
+                temp_name[result[j].name] = [sm/body.length,time] ;
+                mymo.push(temp_name);
+              }
+
+            }//gia ka8e onoma
+
+
+          }//endfor i
+          mymessage.message2 = mymo;
+          mymessage.message5 = true;
+          res.write(JSON.stringify(mymessage));
+          res.end();
+        }catch(err){
           //an auto pou epsaksa den yparxei
-          if (err){
-            mymessage.message1 = "Δεν υπάρχει "+body;
-            mymessage.message5 = false;
-            res.write(JSON.stringify(mymessage));
-            res.end();
-          }else{
-            //prwto query
-            //8a ginei me Promise
-            async function help_me_god(info,res,mymessage){
-              //ena voh8htiko function
-              async function my_sum(body,mymo,info){
-                await console.log("+mvainei");
-                for (let i = 0; i <= 2; i++) {//gia ka8e wra
-                  var today = new Date();
-                  var time = ConvertNumberToTwoDigitString(today.getHours()-i+1);
-                  for(j in info){
-                    body = [];
-                    //console.log(info[j].name);
-                    var mquery = "select num_of_people from visit where ekt=1 and tm like \'%"+ time +":%\' and pname like \'%"+info[j].name+"%\';";
-                    await con.query(mquery,await async function (err, result, fields) {
-                      for(j in result){
-                        body.push(parseInt(result[j].num_of_people));
-                        console.log(body);
-                      }
-                    });//telos query gia visit
-                    var sm = 0;
-                    await console.log(body);
-                    for(k in body){sm = await sm + body[k];}
-                    await mymo.push(sm/body.length);
-                    //await console.log(mymo);
-                  }//gia ka8e onoma
-                }//endfor i
-                return [body,mymo];
-              }//end_my_sum
-
-              var mymo = [];
-              info = await result;
-              await console.log("phra result");
-              mymessage.message1 = await JSON.stringify(result);
-
-              body = await my_sum(body ,mymo ,info);
-              mymo = await body[1];
-              body = await body[0];
-              await console.log(info);
-              mymessage.message2 = await mymo;
-              mymessage.message5 = await true;
-              return mymo;
-            }
-            //arxh tou query 2
-            var mymo = await help_me_god(info,res,mymessage);
-            await console.log(mymo);
-            await res.write(JSON.stringify(mymessage));
-            await res.end();
-          }
-        });//telos query 1 gia info
+          mymessage.message1 = "Δεν υπάρχει "+info;
+          mymessage.message5 = false;
+          res.write(JSON.stringify(mymessage));
+          res.end();
+        }//end of catch
       });//telos connect
-    });
-
-    res.on('error', (err) => {
-      console.error(err);
+      res.on('error', (err) => {
+        console.error(err);
+      });
     });
   }//end post
 });
-
 //gia na vazw pointers
 
 //gia na vazei o user location
@@ -1226,7 +1209,6 @@ app.all('/epafh_me_krousma',async function (req, res) {
     });
     //diavase data
     req.on("data", (chunk) => {
-      console.log(chunk);
       body.push(chunk);
     });
     //otan exeis diavasei olo to data
@@ -1289,17 +1271,13 @@ app.all('/epafh_me_krousma',async function (req, res) {
             for(k in ta_krousmata[ta_krousmata.length-1]){
               if(getDifferenceInHours(new Date(my_visits[my_visits.length-1][v].tm),new Date(my_visits[ta_krousmata.length-1][k].tm)) < 2){
                 to_ret.push(my_visits[my_visits.length-1][v]);
-                console.log(my_visits[ta_krousmata.length-1][v].tm);
                 break;
               }
             }//gia ka8e episkepsh krousmatos
           }//gia ka8e episkepsh mu
         }//endfor
         //3.  pairnw poia visits htan krousmata (+- 7 hmeres)
-        console.log(my_visits);
-        console.log(new Date());
         my_visits=to_ret
-        console.log(ta_krousmata);
         //my_visits = await help_me_god(my_visits);
         res.write(JSON.stringify({mssg : 1, message : my_visits}));
         res.end();//end of response
