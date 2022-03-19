@@ -1,0 +1,452 @@
+#:kivy 2.0.0
+
+<CMapMarker@MapMarker,ButtonBehavior>:
+    size: (50,50)
+    lat : None
+    lon : None
+
+<PrivateSw@Switch>:
+    values: ['Public', 'Private']
+    canvas:
+        Color:
+            rgb: 0.2, 0.709, 0.898, 1
+        Rectangle:
+            size: [sp(41.5), sp(20)]
+            pos: [self.center_x - sp(41.5), self.center_y - sp(10)]
+        Color:
+            rgb: 0.4, 0.4, 0.4, 1
+        Rectangle:
+            size: [sp(41.5), sp(20)]
+            pos: [self.center_x, self.center_y - sp(10)]
+    Label:
+        text: '[b]{}[/b]'.format(root.values[0])
+        markup: True
+        font_size: 13
+        pos: [root.center_x - sp(70), root.center_y - sp(50)]
+    Label:
+        color: 0.75, 0.75, 0.75, 1
+        text: '[b]{}[/b]'.format(root.values[1])
+        markup: True
+        font_size: 13
+        pos: [root.center_x - sp(30), root.center_y - sp(50)]
+
+<Log_Inputs@TextInput>
+    first_touch : False
+    multiline : False
+    size : 200 , 35
+    size_hint : None , None
+
+
+<Profile_Labels@Label>:
+    markup : True
+    size_hint_y : None
+    text_size : self.width,None
+    canvas.before :
+        Color :
+            rgba : 1,.2,.4,1
+        Rectangle :
+            pos :self.pos
+            size : self.size
+
+<Profile_Layout@BoxLayout> :
+    orientation : 'vertical'
+    pic_layout : pic_layout
+    info_layout : info_layout
+    Image :
+        id : pic_layout
+        source : 'src/88.png'
+        allow_stretch : True
+        size_hint : 1,.4
+    BoxLayout :
+        id : info_layout
+        username : username
+        points : points
+        friends : friends
+        orientation : 'vertical'
+        Profile_Labels :
+            id : username
+            text : "[color=ffffff] Username : [/color]"
+        Profile_Labels :
+            id : points
+            text : "[color=ffffff]Points : [/color]"
+        Profile_Labels :
+            id : friends
+            text : "[color=ffffff] Friends : [/color]"
+        Profile_Labels :
+            id : on_event
+            text : "[color=ffffff] On Event : [/color]"
+
+<StateButton@Button>
+    text : ""
+    pos_hint : {'center_x' : 0.5 , 'center_y' : None}
+    size : 110 , 50
+    size_hint : None , None
+
+<First_Screen@Screen>
+    aka : aka
+    RelativeLayout:
+        id : aka
+        login_bttn : login_bttn
+        reg_bttn : reg_bttn
+        us_inp : us_inp
+        email_inp : email_inp
+        passw_inp : passw_inp
+        canvas.before:
+            Color:
+                rgba: 1 , .55 , .25 , 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Log_Inputs :
+            id : us_inp
+            pos_hint : {'center_x' : 0.5 , 'center_y' : 0.8}
+        Log_Inputs :
+            id : email_inp
+            pos_hint : {'center_x' : 0.5 , 'center_y' : 0.65}
+        Log_Inputs :
+            id : passw_inp
+            password : True
+            pos_hint : {'center_x' : 0.5 , 'center_y' : 0.5}
+        Button :
+            id : login_bttn
+            text : "Log In"
+            can_press : [False,False,False]
+            pos_hint : {'center_x' : 0.75 , 'center_y' : 0.1}
+            size : 110 , 50
+            size_hint : None , None
+        Button :
+            id : reg_bttn
+            text : "Register"
+            can_press : [False,False,False]
+            pos_hint : {'center_x' : 0.25 , 'center_y' : 0.1}
+            size : 110 , 50
+            size_hint : None , None
+
+<Second_Screen@Screen>
+    aka : aka
+    options_layout : options_layout
+    BoxLayout:
+        id : aka
+        info_layout : info_layout
+        orientation : 'horizontal'
+        canvas.before:
+            Color:
+                rgba: 1 , 1 , 1 , 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            id : info_layout
+            map_opp : map_opp
+            orientation: 'vertical'
+            canvas.before:
+                Color:
+                    rgba: 1 , 1 , 1 , 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            MapOptions:
+                id : map_opp
+                size_hint:  (1,.1)
+        Control_Buttons :
+            id : options_layout
+#ta options tou map
+<MapOptions@BoxLayout>:
+    #buttons
+    loc_create : loc_create
+    cevent : cevent
+    mpos : mpos
+    friends_button : friends_button
+
+    orientation : 'horizontal'
+    canvas.before:
+        Color:
+            rgba: 1 , 1 , 1 , 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Button :
+        id : loc_create
+        text : "Create Location"
+    Button :
+        id : cevent
+        text : "Create Event"
+    Button :
+        id : mpos
+        text : "My Position"
+    Button :
+        id : friends_button
+        text : "Friends"
+
+#oti 8a uparxei sta plagia gia leitourgies
+<Control_Buttons@BoxLayout> :
+    #buttons
+    map_button : map_button
+    profile_button : profile_button
+    friends_button : friends_button
+    friend_requ_button : friend_requ_button
+    locations_button : locations_button
+    events_button : events_button
+    settings_button : settings_button
+
+    size_hint_x : .3
+    orientation : 'vertical'
+    canvas.before:
+        Color:
+            rgba: 1 , 1 , 1 , 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Button :
+        id : map_button
+        text : "Map"
+    Button :
+        id : profile_button
+        text : "Profile"
+    Button :
+        id : friends_button
+        text : "Friends"
+    Button :
+        id : friend_requ_button
+        text : "Friend\nRequests"
+        multiline : True
+    Button :
+        id : locations_button
+        text : "Locations"
+    Button :
+        id : events_button
+        text : "Events"
+    Button :
+        id : settings_button
+        text : "Settings"
+
+<Cevent_Labels@TextInput>:
+    first_touch : False
+    multiline : False
+    size_hint : None , None
+
+#Location Creation
+<Location_Creation_Layout@BoxLayout> :
+    orientation : 'vertical'
+    pic_layout : pic_layout
+    info_layout : info_layout
+    Image :
+        id : pic_layout
+        source : 'src/88.png'
+        allow_stretch : True
+        size_hint : 1,.4
+    BoxLayout :
+        id : info_layout
+        subutton : subutton
+        name : name
+        lat : lat
+        lon : lon
+        orientation : 'vertical'
+        padding : [0,20,0,20]
+        spacing : 20
+	    canvas.before :
+            Color :
+                rgba : 1,.2,.4,1
+            Rectangle :
+                pos :self.pos
+                size : self.size
+        Cevent_Labels :
+            id : name
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+            hint_text : 'Location Name'
+        Cevent_Labels :
+            id : lat
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+            hint_text : 'Latitude'
+        Cevent_Labels :
+            id : lon
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+            hint_text : 'Longitude'
+        PrivateSw:
+            id : privatesw
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+        Button :
+            id : subutton
+            text : 'Submit'
+            pos_hint : {'center_x' : .5}
+            size_hint : .4, .1
+
+<Event_Creation_Layout@BoxLayout> :
+    orientation : 'vertical'
+    pic_layout : pic_layout
+    info_layout : info_layout
+    Image :
+        id : pic_layout
+        source : 'src/88.png'
+        allow_stretch : True
+        size_hint : 1,.4
+    BoxLayout :
+        id : info_layout
+        subutton : subutton
+        name : name
+        location : location
+        points_earned : points_earned
+        points_loose : points_loose
+        privatesw : privatesw
+        capacity : capacity
+        created : created
+        expired : expired
+        orientation : 'vertical'
+        padding : [0,20,0,20]
+        spacing : 20
+	    canvas.before :
+            Color :
+                rgba : 1,.2,.4,1
+            Rectangle :
+                pos :self.pos
+                size : self.size
+        Cevent_Labels :
+            id : name
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .13
+            hint_text : 'Event Name'
+        Cevent_Labels :
+            id : location
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .13
+            hint_text : 'Location Name'
+        Cevent_Labels :
+            id : points_earned
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .13
+            hint_text : 'Points Earned'
+        Cevent_Labels :
+            id : points_loose
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .13
+            hint_text : 'Points Loose'
+        Cevent_Labels :
+            id : capacity
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .13
+            hint_text : 'Capacity'
+        BoxLayout :
+            id : created
+            spinner_year : spinner_year
+            spinner_month : spinner_month
+            spinner_day : spinner_day
+            spinner_hour : spinner_hour
+            spinner_minute : spinner_minute
+            orientation : 'horizontal'
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+            Label :
+                text : 'Start'
+            Spinner:
+                id : spinner_year
+                text : 'Year'
+            Spinner:
+                id : spinner_month
+                text : 'Month'
+            Spinner:
+                id : spinner_day
+                text : 'Day'
+            Spinner:
+                id : spinner_hour
+                text : 'Hour'
+            Spinner:
+                id : spinner_minute
+                text : 'Minute'
+        BoxLayout :
+            id : expired
+            spinner_year : spinner_year
+            spinner_month : spinner_month
+            spinner_day : spinner_day
+            spinner_hour : spinner_hour
+            spinner_minute : spinner_minute
+            orientation : 'horizontal'
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .1
+            Label :
+                text : 'Expiration'
+            Spinner:
+                id : spinner_year
+                text : 'Year'
+            Spinner:
+                id : spinner_month
+                text : 'Month'
+            Spinner:
+                id : spinner_day
+                text : 'Day'
+            Spinner:
+                id : spinner_hour
+                text : 'Hour'
+            Spinner:
+                id : spinner_minute
+                text : 'Minute'
+        PrivateSw:
+            id : privatesw
+            pos_hint : {'center_x' : .5}
+            size_hint : .6, .05
+        Button :
+            id : subutton
+            text : 'Submit'
+            pos_hint : {'center_x' : .5}
+            size_hint : .4, .13
+
+<FriendsRequLayout@BoxLayout>:
+    search4friends : search4friends
+    main_content : main_content
+    orientation : 'vertical'
+    BoxLayout :
+        id : search4friends
+        search_bar : search_bar
+        subutton : subutton
+        size_hint_y : 0.05
+        orientation : 'horizontal'
+        Chooser :
+            id : search_bar
+        Button :
+            id : subutton
+            size_hint_x : 0.25
+            text : 'Submit'
+
+    ScrollView :
+        id : main_content
+        friend_requests : friend_requests
+
+        do_scroll_x : False
+        do_scroll_y : True
+        always_overscroll : False
+
+        GridLayout :
+            height : self.minimum_height
+            id : friend_requests
+            cols : 1
+            spacing : 5
+            size_hint_y : None
+
+<FriendRequest_Layout@BoxLayout>:
+    ena_request : None
+    size_hint_y : None
+    orientation : 'horizontal'
+    user_info : user_info
+    accept : accept
+    reject : reject
+    canvas.before :
+        Color :
+            rgba : 1,.2,.4,1
+        Rectangle :
+            pos :self.pos
+            size : self.size
+    Label :
+        id : user_info
+        size_hint_y : None
+        height : 40
+    Button :
+        id : accept
+        text : 'Accept'
+        size_hint_y : None
+    Button :
+        id : reject
+        text : 'Reject'
+        size_hint_y : None
